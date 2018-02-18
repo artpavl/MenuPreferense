@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     Menu menu;
     Button button_battery_camera;
     Button button_battery_transmitter;
+    Button button_mode_camera;
     TouchImageView touchImageView;
     DownloadImageTask downloadImageTask;
     ReturnSettings returnSetting;
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     private void setPowerNull() {
         button_battery_camera.setText("Нет ответа");
         button_battery_transmitter.setText("Нет ответа");
-        button_make_foto.setText("Ошибка");
+        button_make_foto.setClickable(false);
     }
 
 
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
     private void setPower(int power_camera, int power_transmiter) {
         button_battery_camera.setText(power_camera + "%");
         button_battery_transmitter.setText(power_transmiter + "%");
+        button_make_foto.setClickable(true);
     }
 
 
@@ -200,8 +202,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         button_battery_camera = findViewById(R.id.battery_cam);
-        button_battery_camera.setText("0%");
         button_battery_transmitter = findViewById(R.id.battery_transmitter);
+        button_mode_camera = findViewById(R.id.mode_cam);
+        button_battery_camera.setText("0%");
         button_battery_transmitter.setText("0%");
 
         // Получаем адресс и имя устройства Bluetooth
@@ -303,6 +306,15 @@ public class MainActivity extends AppCompatActivity {
         String shootingMode = sharedPreferences.getString(SHOOTING_MODE, "211");
         Log.d(sTAG, "Режим съемки =  " + shootingMode);
         this.shootingMode = Integer.parseInt(shootingMode);
+        if (this.shootingFoto == 0) { // фото по выстрелу выключено
+            if (this.shootingMode == 211) { // режим съемки непрерывный
+                button_mode_camera.setText(R.string.loop); // Устанавливаем название режима на кнопку
+            } else if (this.shootingMode == 212) { // режим съемки одиночный
+                button_mode_camera.setText(R.string.ones);
+            }
+        } else {
+            button_mode_camera.setText(R.string.shoot);
+        }
 
     }
 
@@ -310,11 +322,9 @@ public class MainActivity extends AppCompatActivity {
     public void setMethod() {
         if (this.shootingFoto == 0) { // фото по выстрелу выключено
             if (this.shootingMode == 211) { // режим съемки непрерывный
-                button_make_foto.setText(R.string.loop); // Устанавливаем название режима на кнопку
                 button_make_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
 
                         if (stopFoto) {
                             stopFoto = false;
@@ -336,7 +346,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             } else if (this.shootingMode == 212) { // режим съемки одиночный
-                button_make_foto.setText(R.string.ones);
                 button_make_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -353,7 +362,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         } else {
-            button_make_foto.setText(R.string.shoot);
             button_make_foto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -380,6 +388,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Метод очищает поток от лишних байт
+    private void resetInputStream(InputStream is) throws IOException {
+        int n = 0;
+        do {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            n = is.available();
+            Log.d(sTAG, "возможно прочитать  " + n + " байт");
+            long l = is.skip(n);
+            Log.d(sTAG, "прочитано  " + l + " байт");
+        } while (n > 0);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -600,6 +623,12 @@ public class MainActivity extends AppCompatActivity {
     class DownloadImageTask extends AsyncTask<Void, Void, Bitmap> {
 
         @Override
+        protected void onPreExecute() {
+            button_make_foto.setText("Делаю");
+            button_make_foto.setClickable(false);
+        }
+
+        @Override
         protected Bitmap doInBackground(Void... voids) {
             button_make_foto.setClickable(false);
             write(makeFoto);
@@ -647,11 +676,11 @@ public class MainActivity extends AppCompatActivity {
 
                     if (byteArray[0] == (byte) 255 & (int) byteArray[1] == (byte) 216 & byteArray[byteArray.length - 2] == (byte) 255 & byteArray[byteArray.length - 1] == (byte) 217) {
                         bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                        resetInputStream(sInputStream);
                         /// Если не удалось расшифровать картинку задаем ее по умолчанию
                     } else {
                         resetInputStream(sInputStream);
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                        if(bitmap==null){ bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);}
+
                     }
 
                 } else {
@@ -659,7 +688,7 @@ public class MainActivity extends AppCompatActivity {
 //                    sInputStream.close();
 //                    sInputStream.close();
 //                    sBluetoothSocket.close();
-                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                    if(bitmap==null){ bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);}
                 }
 
             } catch (IOException e) {
@@ -671,7 +700,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(sTAG, "Ошибка приема фото");
                 Log.d(sTAG, e.getMessage());
                 e.printStackTrace();
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+
+                if(bitmap==null){ bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);}
 
             }
 
@@ -679,12 +709,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
+
         @Override
         protected void onPostExecute(Bitmap result) {
+
             super.onPostExecute(result);
             result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
             touchImageView.setImageBitmap(result);
             button_make_foto.setClickable(true);
+            button_make_foto.setText(R.string.snapshot);
+
 
         }
 
@@ -728,9 +763,6 @@ public class MainActivity extends AppCompatActivity {
                             commandSettings = 0;
                             status = 1;
                             break;
-                        } else {
-                            resetInputStream(sInputStream);
-                            status = 0;
                         }
                     }
                 } catch (IOException e) {
@@ -755,24 +787,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Метод очищает поток от лишних байт
-    private void resetInputStream(InputStream is) throws IOException {
-        int n = 0;
-        do {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            n = is.available();
-            Log.d(sTAG, "возможно прочитать  " + n + " байт");
-            long l = is.skip(n);
-            Log.d(sTAG, "прочитано  " + l + " байт");
-        } while (n > 0);
-    }
-
-
-    class Loop extends AsyncTask<Void, Void, Bitmap> {
+       class Loop extends AsyncTask<Void, Void, Bitmap> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -796,6 +811,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (isCancelled()) {
                     resetInputStream(sInputStream);
+                    return null;
                 }
 
                 number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
@@ -890,17 +906,28 @@ public class MainActivity extends AppCompatActivity {
             if (stopFoto) {
                 loop = new Loop();
                 loop.execute();
+                return;
             }
 
         }
 
     }
 
-    class LoopShot extends Loop {
+    class LoopShot extends AsyncTask <Void, Void, Bitmap>{
         @Override
         protected void onPreExecute() {
             button_make_foto.setText("Выстрел");
         }
+
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+
+
+
+            return null;
+        }
+
+
 
         @Override
         protected void onPostExecute(Bitmap result) {
