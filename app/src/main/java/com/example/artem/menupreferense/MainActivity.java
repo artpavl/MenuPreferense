@@ -315,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
 
+
                         if (stopFoto) {
                             stopFoto = false;
                             loop.cancel(true); // отменяем Loop
