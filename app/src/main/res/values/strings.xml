@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">MenuPreferense</string>
+    <string name="OKO">ОкО</string>
+    <string name="action_settings">Настройки</string>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="snapshot">Снимок</string>
+    <string name="connection">Соединение</string>
+    <string name="ones">Одиночный</string>
+    <string name="loop">Непрерывный</string>
+    <string name="shoot">Выстрел</string>
+
+    <!--- Настройки Preferenses  -->
+
+    <!--- Настройки передатчика  -->
+    <string name="title_setting_transmitter">Настройки передатчика</string>
+    <!--- Скорость передачи данных  -->
+    <string name="speed_cam">Скорость передачи</string>
+    <string name="speed_cam_summary">Скорость передачи изображения </string>
+    <string name="key_speed_cam">Speed_Cam</string>
+
+    <!--- Частота передачи данных  -->
+    <string name="transmission_frequency">Частота передачи</string>
+    <string name="transmission_frequency_summary">Выбор частоты передачи изображения </string>
+    <string name="key_transmission_frequency">Transmission_Frequency</string>
+
+    <!--- Мощность передатчика  -->
+    <string name="transmitter_power">Мощность передатчика</string>
+    <string name="transmitter_power_summary">Выбор мощности передатчика </string>
+    <string name="key_transmitter_power">Transmitter_Power</string>
+
+    <!--- Настройки камеры  -->
+    <string name="title_setting_cam">Настройки камеры</string>
+    <!--- Качество фото  -->
+    <string name="quality_camFoto">Качество фото</string>
+    <string name="title_quality_camFoto">Качество фото</string>
+    <string name="key_quality_camFoto">Quality_Foto</string>
+    <!--- Режим съемки  -->
+    <string name="shooting_mode">Режим съемки</string>
+    <string name="shooting_mode_summary">Выбор режима съемки</string>
+    <string name="key_shooting_mode">Shooting_Mode</string>
+
+    <!--- Фото по выстрелу  -->
+    <string name="key_shooting_foto">Shooting_Foto</string>
+    <string name="shooting_foto">Фото по выстрелу</string>
+
+    <!--- Задержка  -->
+    <string name="delay">Задержка фото</string>
+    <string name="delay_summary">Задержка</string>
+    <string name="key_delay">Delay</string>
+
+    <!--- Чувствительность  -->
+    <string name="sensitivity">Чувствительность микрофона</string>
+    <string name="sensitivity_summary">Чувствительность</string>
+    <string name="key_sensitivity">Sensitivity</string>
+
+
+    <!--- ИК подсветка  -->
+    <string name="key_infrared_illumination">Infrared_Illumination</string>
+    <string name="infrared_illumination">ИК подсветка</string>
+
+
+    <!--- Режим энергосбережения  -->
+    <string name="key_save_power">Save_Power</string>
+    <string name="save_power">Режим энергосбережения</string>
+
+    <string name="battery_charge_cam">камера</string>
+    <string name="battery_charge_transmitter">передатчик</string>
+    <string name="savePhoto">Сохранить</string>
+    <string name="find_gadget">Найденные устройства</string>
+
+
+</resources>

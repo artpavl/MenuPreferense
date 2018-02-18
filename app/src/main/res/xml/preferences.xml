@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <PreferenceCategory android:title="@string/title_setting_transmitter">
+        <!--- Скорость передачи данных
+        <ListPreference
+            android:defaultValue="101"
+            android:entries="@array/name_speed"
+            android:entryValues="@array/value_speed"
+            android:key="@string/key_speed_cam"
+            android:persistent="true"
+            android:summary="@string/speed_cam_summary"
+            android:title="@string/speed_cam" />-->
+
+        <!--- Частота передачи  -->
+        <ListPreference
+            android:defaultValue="111"
+            android:entries="@array/name_freg"
+            android:entryValues="@array/value_freg"
+            android:key="@string/key_transmission_frequency"
+            android:persistent="true"
+            android:summary="@string/transmission_frequency_summary"
+            android:title="@string/transmission_frequency" />
+
+        <!--- Мощность передатчика  -->
+        <ListPreference
+            android:defaultValue="121"
+            android:entries="@array/name_power"
+            android:entryValues="@array/value_power"
+            android:key="@string/key_transmitter_power"
+            android:persistent="true"
+            android:summary="@string/transmitter_power_summary"
+            android:title="@string/transmitter_power" />
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_setting_cam">
+        <!--- Качество фото  -->
+        <ListPreference
+            android:defaultValue="36"
+            android:entries="@array/name_qualityFoto"
+            android:entryValues="@array/value_qualityFoto"
+            android:key="@string/key_quality_camFoto"
+            android:persistent="true"
+            android:summary="@string/quality_camFoto"
+            android:title="@string/title_quality_camFoto" />
+
+        <!--- Режим съемки  -->
+        <ListPreference
+            android:defaultValue="212"
+            android:entries="@array/name_shooting_mode"
+            android:entryValues="@array/value_shooting_mode"
+            android:key="@string/key_shooting_mode"
+            android:persistent="true"
+            android:summary="@string/shooting_mode_summary"
+            android:title="@string/shooting_mode" />
+    </PreferenceCategory>
+
+    <!--- Фото по выстрелу  -->
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/key_shooting_foto"
+        android:title="@string/shooting_foto" />
+
+
+
+
+        <!--- Задержка выстрела  -->
+        <ListPreference
+            android:defaultValue="3"
+            android:dependency="@string/key_shooting_foto"
+            android:entries="@array/name_delay"
+            android:entryValues="@array/value_delay"
+            android:key="@string/key_delay"
+            android:persistent="true"
+            android:summary="@string/delay_summary"
+            android:title="@string/delay" />
+
+
+        <!--- Чувствительность микрафона  -->
+        <ListPreference
+            android:defaultValue="3"
+            android:dependency="@string/key_shooting_foto"
+            android:entries="@array/name_sensitivity"
+            android:entryValues="@array/value_sensitivity"
+            android:key="@string/key_sensitivity"
+            android:persistent="true"
+            android:summary="@string/sensitivity_summary"
+            android:title="@string/sensitivity" />
+
+
+    <!--- ИК подсветка  -->
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/key_infrared_illumination"
+        android:title="@string/infrared_illumination" />
+
+    <!--- Режим энергосбережения
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/key_save_power"
+        android:title="@string/save_power" />-->
+
+</PreferenceScreen>

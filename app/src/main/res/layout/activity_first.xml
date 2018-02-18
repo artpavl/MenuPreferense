@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context="com.example.artem.demobluetoothconnect.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal|center"
+        android:gravity="center_vertical|center_horizontal|center"
+        android:orientation="horizontal">
+        <!--
+                <Button
+                    android:id="@+id/btnOnOf"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_bluetooth_black_24dp"
+                    android:text="Вкл/Выкл" /> -->
+
+        <Button
+            android:id="@+id/btnFindBluetooth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="8dp"
+            android:drawableTop="@drawable/bluetooth_icon_128"
+            android:text="Поиск устройств" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

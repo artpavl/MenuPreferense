@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!---НАСТРОЙКИ ПЕРЕДАТЧИКА -->
+    <!--- Скорость передачи данных  -->
+    <string-array name="name_speed">
+        <item>115.2 KB/s</item>
+        <item>57.6 KB/s</item>
+        <item>9.6 KB/s</item>
+
+    </string-array>
+    <string-array name="value_speed">
+        <item>101</item>
+        <item>102</item>
+        <item>103</item>
+    </string-array>
+
+    <!---Частота передачи -->
+    <string-array name="name_freg">
+        <item>Частота 1</item>
+        <item>Частота 2</item>
+        <item>Частота 3</item>
+        <item>Частота 4</item>
+        <item>Частота 5</item>
+    </string-array>
+    <string-array name="value_freg">
+        <item>111</item>
+        <item>112</item>
+        <item>113</item>
+        <item>114</item>
+        <item>115</item>
+    </string-array>
+
+    <!---Мощность передатчика -->
+    <string-array name="name_power">
+        <item>Высокая</item>
+        <item>Средняя</item>
+        <item>Низкая</item>
+    </string-array>
+    <string-array name="value_power">
+        <item>121</item>
+        <item>122</item>
+        <item>123</item>
+    </string-array>
+
+
+    <!---НАСТРОЙКИ КАМЕРЫ -->
+    <!--- Качество фотографии -->
+    <string-array name="name_qualityFoto">
+        <item>Высокое</item>
+        <item>Среднее</item>
+        <item>Низкое</item>
+        <item>Минимальное</item>
+    </string-array>
+    <string-array name="value_qualityFoto">
+        <item>15</item>
+        <item>36</item>
+        <item>100</item>
+        <item>255</item>
+    </string-array>
+
+    <!---Рехим сьемки -->
+    <string-array name="name_shooting_mode">
+        <item>Непрерывный</item>
+        <item>Одиночный</item>
+    </string-array>
+    <string-array name="value_shooting_mode">
+        <item>211</item>
+        <item>212</item>
+    </string-array>
+
+    <!--- Фото по выстрелу  -->
+    <string-array name="name_shooting_foto">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <string-array name="value_shooting_foto">
+        <item>221</item>
+        <item>222</item>
+    </string-array>
+
+
+    <!---Задержка -->
+    <string-array name="name_delay">
+        <item>1 c.</item>
+        <item>2 c.</item>
+        <item>3 c.</item>
+        <item>4 c.</item>
+        <item>5 c.</item>
+    </string-array>
+    <string-array name="value_delay">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <!---Чувствительность -->
+    <string-array name="name_sensitivity">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="value_sensitivity">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+
+
+    <!--- ИК подсветка  -->
+    <string-array name="name_infrared_illumination">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <string-array name="value_infrared_illumination">
+        <item>231</item>
+        <item>232</item>
+    </string-array>
+
+
+    <!--- Режим энергосбережения  -->
+    <string-array name="name_save_power">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+    <string-array name="value_save_power">
+        <item>241</item>
+        <item>242</item>
+    </string-array>
+
+
+    <!---Массив значений ключей для ListPreferenses-->
+    <string-array name="value_keys_ListPreferenses">
+     <!--  <item>@string/key_speed_cam</item> -->
+        <item>@string/key_transmission_frequency</item>
+        <item>@string/key_transmitter_power</item>
+        <item>@string/key_quality_camFoto</item>
+        <item>@string/key_shooting_mode</item>
+        <item>@string/key_delay</item>
+        <item>@string/key_sensitivity</item>
+    </string-array>
+
+
+    <!---Массив значений ключей для SwichPreferenses-->
+    <string-array name="value_keys_SwichPreferenses">
+        <item>@string/key_shooting_foto</item>
+        <item>@string/key_infrared_illumination</item>
+        <!--   <item>@string/key_save_power</item> -->
+    </string-array>
+
+
+</resources>
