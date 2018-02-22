@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import static com.example.artem.menupreferense.DialogBTSearch.listViewSearcDevice;
+import static com.example.artem.menupreferense.GlobalVeriable.sTAG;
 
 public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.OnHeadlineSelectedListener {
-    public static String TAG = "MainActivity";
+    public static String TAG = sTAG;
    public static BluetoothAdapter mbluetoothAdapter;
     Button btnFindBluetooth;
     private static final int ENABLE_BT_REQUEST_CODE = 1; //
@@ -96,6 +97,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
     private final BroadcastReceiver mBroadCastReceiver3 = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            Log.d(sTAG, "mBroadCastReceiver3");
             //Broadcast Action: указывает, что режим сканирования Bluetooth локального адаптера изменился.
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -111,32 +113,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
     };
 
 
-    //Broadcast Action: указывает на изменение состояния связи удаленного устройства.
-    private final BroadcastReceiver mBroadCastReceiver4 = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-                BluetoothDevice mDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    //Указывает, что удаленное устройство соединено (сопряжено).
-                    Log.d(TAG, "mBroadCastReceiver4 удаленное устройство соединено ");
-                }
-                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
-                    //Указывает, что соединение с удаленным устройством выполняется.
-                    Log.d(TAG, "mBroadCastReceiver4 соединение с удаленным устройством выполняется ");
-                }
-                if (mDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                    //  Указывает, что удаленное устройство не соединено (сопряжено).
-                    Log.d(TAG, "mBroadCastReceiver4 устройство не соединено ");
-
-                }
-
-
-            }
-
-        }
-    };
 
 
 
@@ -147,7 +123,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
             unregisterReceiver(mBroadCastReceiver1);
             unregisterReceiver(mBroadCastReceiver2);
             unregisterReceiver(mBroadCastReceiver3);
-            unregisterReceiver(mBroadCastReceiver4);
         } catch (Exception e) {
         }
 
@@ -162,9 +137,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
         mbluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         btnFindBluetooth = (Button) findViewById(R.id.btnFindBluetooth);
         mBTDevices = new ArrayList<>();
-        // Событие изменения состояния связи
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(mBroadCastReceiver4, filter);
 
         btnFindBluetooth.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
