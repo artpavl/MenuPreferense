@@ -1,11 +1,13 @@
 package com.example.artem.menupreferense;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -102,34 +104,43 @@ public class MainActivity extends AppCompatActivity {
     byte[] makeFoto = {(byte) 1, (byte) 12, (byte) 10, (byte) 13};  // делать фото
 
 
-
     //Broadcast Action: указывает на изменение состояния связи удаленного устройства.
-    private final BroadcastReceiver  mBroadCastReceiver4 = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadCastReceiver4 = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d(sTAG, "Регистрация прошла !!!!!!!!!!!!!!!!!!!!!");
-            if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-                BluetoothDevice mDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    //Указывает, что удаленное устройство соединено (сопряжено).
-                    Log.d(sTAG, "mBroadCastReceiver4 удаленное устройство соединено ");
-                    Toast.makeText(getApplicationContext(),"Удаленное устройство соединино",Toast.LENGTH_LONG).show();
-                }
-                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
-                    //Указывает, что соединение с удаленным устройством выполняется.
-                    Log.d(sTAG, "mBroadCastReceiver4 соединение с удаленным устройством выполняется ");
-                }
-                if (mDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                    //  Указывает, что удаленное устройство не соединено (сопряжено).
-                    Log.d(sTAG, "mBroadCastReceiver4 устройство не соединено ");
 
-                }
-
+            switch (intent.getAction()) {
+                case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+                    Log.d(sTAG, "ACTION_ACL_DISCONNECTED ");
+                    Toast.makeText(context, "Потеряна связь с устройством", Toast.LENGTH_LONG).show();
+                    finish();
+                    break;
             }
+
+
+//            String action = intent.getAction();
+//            if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+//                BluetoothDevice mDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
+//                    //Указывает, что удаленное устройство соединено (сопряжено).
+//                    Log.d(sTAG, "mBroadCastReceiver4 удаленное устройство соединено ");
+//                    Toast.makeText(getApplicationContext(),"Удаленное устройство соединино",Toast.LENGTH_LONG).show();
+//                }
+//                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
+//                    //Указывает, что соединение с удаленным устройством выполняется.
+//                    Log.d(sTAG, "mBroadCastReceiver4 соединение с удаленным устройством выполняется ");
+//                }
+//                if (mDevice.getBondState() == BluetoothDevice.BOND_NONE) {
+//                    //  Указывает, что удаленное устройство не соединено (сопряжено).
+//                    Log.d(sTAG, "mBroadCastReceiver4 устройство не соединено ");
+//
+//                }
+//
+//            }
 
         }
     };
+
 
     // Метод задает параметры заряда камеры и передатчика
     private void setPowerNull() {
@@ -225,9 +236,9 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Задание настроек по умолчанию
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        // Получаем объект SharedPreferences
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+//        // Получаем объект SharedPreferences
+//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         // Находим главный фрагмент приложения
         fragment = getSupportFragmentManager().findFragmentById(R.id.fragment);
         // Находим ImageView
@@ -242,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Получаем адресс и имя устройства Bluetooth
         adressBluetooth = getIntent().getStringExtra("Adress");
-        nameBluetooth = getIntent().getStringExtra("Name");
+     //   nameBluetooth = getIntent().getStringExtra("Name");
 
 
         button_make_foto = (Button) fragment.getView().findViewById(R.id.buttonMakephoto);
@@ -271,8 +282,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
 
 
     }
@@ -356,7 +365,8 @@ public class MainActivity extends AppCompatActivity {
     // Метод задает обработчики кнопки фото в зависимости от выбранного режима меню
     public void setMethod() {
         if (this.shootingFoto == 0) { // фото по выстрелу выключено
-            if (this.shootingMode == 211) { // режим съемки непрерывный
+            if (this.shootingMode == 211) {
+                // режим съемки непрерывный
                 button_make_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -382,7 +392,9 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-            } else if (this.shootingMode == 212) { // режим съемки одиночный
+            } else if (this.shootingMode == 212) {
+                // режим съемки одиночный
+                button_make_foto.setText(R.string.snapshot);
                 button_make_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -399,31 +411,31 @@ public class MainActivity extends AppCompatActivity {
 
             }
         } else {
-            button_make_foto.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (stopFoto) {
-                        stopFoto = false;
-                        loopShot.cancel(true); // отменяем Loop
-                        Log.d(sTAG, "Отменяем Loop ");
-                    } else {
-                        stopFoto = true;
-                        if (loopShot == null) {
-                            loopShot = new LoopShot();
-                            loopShot.execute();
-                            Log.d(sTAG, "Зпускаем Loop по выстрелу ");
-                        } else if (loop.isCancelled()) {
-                            loopShot = new LoopShot();
-                            loopShot.execute();
-                            Log.d(sTAG, "Зпускаем Loop по выстрелу ");
-                        }
-                    }
+            // Фото по выстрелу
+            button_make_foto.setText(R.string.shoot);
+            button_make_foto.setClickable(false);
+            if (loopShot == null) {
+                loopShot = new LoopShot();
+                loopShot.execute();
+                Log.d(sTAG, "Зпускаем Loop по выстрелу ");
+            } else if (loopShot.getStatus() == AsyncTask.Status.FINISHED) {
+                loopShot = new LoopShot();
+                loopShot.execute();
+                Log.d(sTAG, "Зпускаем Loop по выстрелу loopShot.getStatus() == AsyncTask.Status.FINISHED ");
+            }
 
-                }
-            });
 
         }
     }
+
+
+    //Метод сохранения адреса устройства в настройках
+//    public void seveAdress(String adressBluetooth) {
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putString(GlobalVeriable.BLUETOOTH_KEY, adressBluetooth);
+//        editor.commit();
+//        Log.d(sTAG, "Адресс сохранен  " + adressBluetooth);
+//    }
 
     // Метод очищает поток от лишних байт
     private void resetInputStream(InputStream is) throws IOException {
@@ -513,6 +525,15 @@ public class MainActivity extends AppCompatActivity {
 
     /// Класс соединения Bluetooth в отдельном потоке ///////
     public class BTConnectThread extends AsyncTask<Void, Void, Void> {
+
+
+        public void seveAdress(String adressBluetooth) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(GlobalVeriable.BLUETOOTH_KEY, adressBluetooth);
+            editor.commit();
+            Log.d(sTAG, "Адресс сохранен  " + adressBluetooth);
+        }
+
         @Override
         protected Void doInBackground(Void... voids) {
             if (sBluetoothSocket != null) {
@@ -531,7 +552,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } else {
-
 
 
                 Log.d(sTAG, "BluetoothSocket = null ");
@@ -565,27 +585,22 @@ public class MainActivity extends AppCompatActivity {
                                 finish();
                             }
 
-
+                            seveAdress(adressBluetooth);
                             Log.d(sTAG, "...Соединение установлено и готово к передачи данных...");
 
 
                             /** Здесь необходимо отправить настройки приложения*/
 
-//                            if (returnSetting == null) {
-//                                Log.d(sTAG, "Создали returnSetting");
-//                                returnSetting = new ReturnSettings();
-//                                returnSetting.execute();
-//                            } else if (returnSetting.getStatus() == AsyncTask.Status.FINISHED) {
-//                                Log.d(sTAG, "returnSetting.getStatus() == AsyncTask.Status.FINISHED");
-//                                returnSetting = new ReturnSettings();
-//                                returnSetting.execute();
-//                            }
+                            if (returnSetting == null) {
+                                Log.d(sTAG, "Создали returnSetting");
+                                returnSetting = new ReturnSettings();
+                                returnSetting.execute();
+                            } else if (returnSetting.getStatus() == AsyncTask.Status.FINISHED) {
+                                Log.d(sTAG, "returnSetting.getStatus() == AsyncTask.Status.FINISHED");
+                                returnSetting = new ReturnSettings();
+                                returnSetting.execute();
+                            }
 
-
-
-                            Log.d(sTAG, "Регистрируем приемник");
-                            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-                            registerReceiver(mBroadCastReceiver4, filter);
 
                         }
 
@@ -622,6 +637,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         if (mbluetoothAdapter.isEnabled()) {
             Log.d(sTAG, "onStart");
+            Log.d(sTAG, "Регистрируем приемник");
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+            registerReceiver(mBroadCastReceiver4, filter);
             getSettings();
             if (btConnectThread == null) {
                 btConnectThread = new BTConnectThread();
@@ -641,10 +660,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        unregisterReceiver(mBroadCastReceiver4);
         sRestartGlobalVeriable();
         Log.d(sTAG, "onStop");
         super.onStop();
     }
+
 
     @Override
     protected void onPause() {
@@ -655,7 +676,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(sTAG, "onDestroy");
-        unregisterReceiver(mBroadCastReceiver4);
         super.onDestroy();
     }
 
@@ -683,6 +703,7 @@ public class MainActivity extends AppCompatActivity {
             byte command;
             byte command_N;
             byte command_R;
+            Bitmap bmp;
 
             try {
 
@@ -706,40 +727,61 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
-                    while (count < size_foto) {
-                        byteArrayOutputStream.write(sInputStream.read());
-                        count++;
-                        // проверять
-                    }
-                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    Log.d(sTAG, "Массив " + byteArray.length);
-                    Log.d(sTAG, "1 " + (byteArray[0]));
-                    Log.d(sTAG, "2 " + (byteArray[1]));
-                    Log.d(sTAG, "4 " + (byteArray[byteArray.length - 2]));
-                    Log.d(sTAG, "3 " + (byteArray[byteArray.length - 1]));
+                    boolean flagEndOfJpg = true;
+                    int new_temp = 0;
+                    int previous_temp = 0;
 
-                    if (byteArray[0] == (byte) 255 & (int) byteArray[1] == (byte) 216 & byteArray[byteArray.length - 2] == (byte) 255 & byteArray[byteArray.length - 1] == (byte) 217) {
-                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                        /// Если не удалось расшифровать картинку задаем ее по умолчанию
+                    for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
+                        new_temp = sInputStream.read();
+                        byteArrayOutputStream.write(new_temp);
+                        if ((previous_temp == 0xFF) && (new_temp == 0xD9)) {
+                            flagEndOfJpg = false;
+                            Log.d(sTAG, "конец фото ");
+                        }
+                        previous_temp = new_temp;
+                        count++;
+                    }
+                    Log.d(sTAG, "Прочитано " + count);
+
+                    byte[] byteArray = byteArrayOutputStream.toByteArray();
+                    bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    if (bmp != null) {
+                        bitmap = bmp;
                     } else {
                         resetInputStream(sInputStream);
-                        if (bitmap == null) {
-                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                        }
-
+                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
                     }
+
+//                    while (count < size_foto) {
+//                        byteArrayOutputStream.write(sInputStream.read());
+//                        count++;
+//                        // проверять
+//                    }
+//                    byte[] byteArray = byteArrayOutputStream.toByteArray();
+//                    Log.d(sTAG, "Массив " + byteArray.length);
+//                    Log.d(sTAG, "1 " + (byteArray[0]));
+//                    Log.d(sTAG, "2 " + (byteArray[1]));
+//                    Log.d(sTAG, "4 " + (byteArray[byteArray.length - 2]));
+//                    Log.d(sTAG, "3 " + (byteArray[byteArray.length - 1]));
+//
+//                    if (byteArray[0] == (byte) 255 & (int) byteArray[1] == (byte) 216 & byteArray[byteArray.length - 2] == (byte) 255 & byteArray[byteArray.length - 1] == (byte) 217) {
+//                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+//                        /// Если не удалось расшифровать картинку задаем ее по умолчанию
+//                    } else {
+//                        resetInputStream(sInputStream);
+//                        if (bitmap == null) {
+//                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+//                        }
+//
+//                    }
 
                 } else {
                     resetInputStream(sInputStream);
-//                    sInputStream.close();
-//                    sInputStream.close();
-//                    sBluetoothSocket.close();
-                    if (bitmap == null) {
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                    }
+//
+
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 try {
                     resetInputStream(sInputStream);
                 } catch (IOException e1) {
@@ -762,11 +804,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Bitmap result) {
 
-            super.onPostExecute(result);
-            result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-            touchImageView.setImageBitmap(result);
-            button_make_foto.setClickable(true);
-            button_make_foto.setText(R.string.snapshot);
+            if (result == null) {
+                result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+            } else {
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+            }
 
 
         }
@@ -819,10 +868,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            Log.d(sTAG, "Регистрируем приемник");
-            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-            registerReceiver(mBroadCastReceiver4, filter);
-
             return status;
         }
 
@@ -832,7 +877,6 @@ public class MainActivity extends AppCompatActivity {
                 setPower(energy_camera, energy_transmiter);
                 button_make_foto.setClickable(true);
                 setMethod();
-
 
 
             } else {
@@ -859,9 +903,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return null;
             }
+
+
             write(makeFoto);
             byte number_cam;
             byte command;
+
             try {
 
                 if (isCancelled()) {
@@ -874,7 +921,7 @@ public class MainActivity extends AppCompatActivity {
                 command = (byte) sInputStream.read();                      // 2. Номер комаенды (команда 11)
                 Log.d(sTAG, "Номер команды " + command);
                 if (command == 12) {
-//
+                    Bitmap bmp;
                     int raz1;
                     int raz2;
                     int size_foto;
@@ -905,11 +952,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(sTAG, "Прочитано " + count);
 
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                    if (bitmap == null) {
+                    bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    if (bmp != null) {
+                        bitmap = bmp;
+                    } else {
+                        resetInputStream(sInputStream);
                         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
                     }
-
 //                    while (count < size_foto) {
 //                        if (isCancelled()) {
 //                            resetInputStream(sInputStream);
@@ -977,6 +1026,9 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap result) {
             if (result == null) {
                 Log.d(sTAG, "result == null");
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                result = getBitmap(bitmap, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
                 if (stopFoto) {
                     loop = new Loop();
                     loop.execute();
@@ -997,10 +1049,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //// Цикл фото по выстрелу
     class LoopShot extends AsyncTask<Void, Void, Bitmap> {
         @Override
         protected void onPreExecute() {
-            button_make_foto.setText("Выстрел");
+            button_make_foto.setText("Отмена");
         }
 
         @Override
@@ -1043,37 +1096,29 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
-                    while (count < size_foto) {
-                        if (isCancelled()) {
-                            resetInputStream(sInputStream);
-                            return null;
+                    boolean flagEndOfJpg = true;
+                    int new_temp = 0;
+                    int previous_temp = 0;
+
+                    for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
+                        new_temp = sInputStream.read();
+                        byteArrayOutputStream.write(new_temp);
+                        if ((previous_temp == 0xFF) && (new_temp == 0xD9)) {
+                            flagEndOfJpg = false;
+                            Log.d(sTAG, "конец фото ");
                         }
-                        byteArrayOutputStream.write(sInputStream.read());
+                        previous_temp = new_temp;
                         count++;
-
                     }
+                    Log.d(sTAG, "Прочитано " + count);
+
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    Log.d(sTAG, "Массив " + byteArray.length);
-                    Log.d(sTAG, "1 " + (byteArray[0]));
-                    Log.d(sTAG, "2 " + (byteArray[1]));
-                    Log.d(sTAG, "4 " + (byteArray[byteArray.length - 2]));
-                    Log.d(sTAG, "3 " + (byteArray[byteArray.length - 1]));
+                    bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
-                    if (byteArray[0] == (byte) 255 & (int) byteArray[1] == (byte) 216 & byteArray[byteArray.length - 2] == (byte) 255 & byteArray[byteArray.length - 1] == (byte) 217) {
-                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                        /// Если не удалось расшифровать картинку задаем ее по умолчанию
-                    } else {
-                        resetInputStream(sInputStream);
-                        //  bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-
-                    }
 
                 } else {
                     resetInputStream(sInputStream);
-//                    sInputStream.close();
-//                    sInputStream.close();
-//                    sBluetoothSocket.close();
-                    //  bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+
                 }
 
             } catch (IOException e) {
@@ -1096,16 +1141,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Bitmap result) {
 
-            if (result == null) {
-                Log.d(sTAG, "result == null");
-                return;
-            }
-            result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-            touchImageView.setImageBitmap(result);
-            if (stopFoto) {
+            if (result != null) {
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                loopShot = new LoopShot();
+                loopShot.execute();
+            } else {
+                touchImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.semarobo));
                 loopShot = new LoopShot();
                 loopShot.execute();
             }
+            Log.d(sTAG, " LoopShot onPostExecute отработал ");
+            return;
         }
 
 

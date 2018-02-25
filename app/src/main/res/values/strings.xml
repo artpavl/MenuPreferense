@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">MenuPreferense</string>
-    <string name="OKO">ОкО</string>
+    <string name="app_name">Наблюдатель</string>
+    <string name="OKO">Наблюдатель 0.1</string>
     <string name="action_settings">Настройки</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="snapshot">Снимок</string>

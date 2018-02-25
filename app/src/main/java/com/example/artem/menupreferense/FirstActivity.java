@@ -1,6 +1,7 @@
 package com.example.artem.menupreferense;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import static com.example.artem.menupreferense.DialogBTSearch.listViewSearcDevice;
+import static com.example.artem.menupreferense.GlobalVeriable.BLUETOOTH_KEY;
 import static com.example.artem.menupreferense.GlobalVeriable.sTAG;
+import static com.example.artem.menupreferense.StaticValue.*;
 
 public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.OnHeadlineSelectedListener {
     public static String TAG = sTAG;
@@ -101,6 +105,15 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
             //Broadcast Action: указывает, что режим сканирования Bluetooth локального адаптера изменился.
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                // Подключаемся к ранее подключенному устройству
+                if(loadAdress() != null){
+                    if(device.getAddress().equals(loadAdress()) ){
+                        dialog.dismiss();
+                        Intent i = new Intent(getApplicationContext(),MainActivity.class);
+                        i.putExtra("Adress", device.getAddress());
+                        startActivity(i);
+                    }
+                }
 
                 mBTDevices.add(device);
                 mDeviceListAdapter = new DeviceListAdapter(getApplicationContext(), R.layout.device_adapter_view, mBTDevices);
@@ -114,7 +127,11 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 
 
 
-
+    public String loadAdress() {
+        String adress = sharedPreferences.getString(BLUETOOTH_KEY, "");
+        Log.d(sTAG,"sharedPreferenses " + adress + "загружен");
+        return adress;
+    }
 
     @Override
     protected void onStop() {
@@ -138,14 +155,22 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
         btnFindBluetooth = (Button) findViewById(R.id.btnFindBluetooth);
         mBTDevices = new ArrayList<>();
 
+
+       //  Задание настроек по умолчанию
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        // Получаем объект SharedPreferences
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+
+
         btnFindBluetooth.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
                 enableDisableBT();
                 dialog = new DialogBTSearch();
                 dialog.show(getSupportFragmentManager(), "bt");
-
+                Log.d(TAG,"dialog.show");
                 // progressBar.setVisibility(ProgressBar.VISIBLE);
                 //  btnDiscover();
 
@@ -157,7 +182,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 
 
     // Метод определения вклюяенности bluetooth;
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public void enableDisableBT() {
         if (mbluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "Bluetooth недоступен", Toast.LENGTH_SHORT).show();
@@ -184,7 +208,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 
 
     // Метод поиска удаленных устройств bluetooth
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public void btnDiscover() {
 
         Log.d(TAG, " btnDiscover: Поиск устройств");
@@ -197,7 +220,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
             Log.d(TAG, " btnDiscover: Обнаружение отменено");
 
 
-            checkBTPermission();
+         //   checkBTPermission();
 
             mbluetoothAdapter.startDiscovery(); //Запустите процесс обнаружения удаленных устройств.
             IntentFilter discoverDeviceIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -205,26 +228,25 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 
         }
         if (!mbluetoothAdapter.isDiscovering()) {
-           checkBTPermission();
+         //  checkBTPermission();
             mbluetoothAdapter.startDiscovery(); //Запустите процесс обнаружения удаленных устройств.
             IntentFilter discoverDeviceIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
             registerReceiver(mBroadCastReceiver3, discoverDeviceIntent);
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void checkBTPermission() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCES_FINE_LOCATION");
-            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCES_COARSE_LOCATION");
-            if (permissionCheck != 0) {
-                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
-            } else {
-                Log.d(TAG, " checkBTPermission() Не надо выбирать разрешение");
-            }
-        }
-
-    }
+//    private void checkBTPermission() {
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+//            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCES_FINE_LOCATION");
+//            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCES_COARSE_LOCATION");
+//            if (permissionCheck != 0) {
+//                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+//            } else {
+//                Log.d(TAG, " checkBTPermission() Не надо выбирать разрешение");
+//            }
+//        }
+//
+//    }
 
 
 

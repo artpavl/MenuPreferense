@@ -15,6 +15,7 @@ import java.io.OutputStream;
 
 public class GlobalVeriable {
     public static final String sTAG = "LOGIS";
+    public static final String BLUETOOTH_KEY = "BLUETOOTH_KEY";
     public static String sBluetoothAdress;
     public static BluetoothAdapter sBluetoothAdapter;
     public static BluetoothDevice sBluetoothDevice;
