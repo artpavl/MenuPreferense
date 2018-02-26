@@ -1,7 +1,6 @@
 package com.example.artem.menupreferense;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -37,8 +35,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     // данные для отправки камере
     int numberCam = 1; // номер камеры 0
-    int numberCommandSettings = 9; // номер каманды 1
+    static final int numberCommandSettings = 9; // номер каманды 1
     int frequencytTansmission; // частота передачи 2
     int powerTransmitter; // мощность передатчика 3
     int qualityFoto; // качество фото 4
@@ -92,12 +88,12 @@ public class MainActivity extends AppCompatActivity {
     //SPP UUID. Look for it
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    private Button button_make_foto;
+    public static  Button button_make_foto;
     private Button save;
     private Button button_settings;
     private ProgressBar progressBar;
     // Запрос на производство фотографии
-    byte[] returnSettings;
+    static byte[] returnSettings;
     byte commandSettings;
     int countSettings;
     boolean SET;
@@ -142,16 +138,18 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    // Метод задает параметры заряда камеры и передатчика
-    private void setPowerNull() {
+    // Метод задает параметры заряда камеры и передатчика если нет связи
+     public void setPowerNull() {
         button_battery_camera.setText("Нет ответа");
         button_battery_transmitter.setText("Нет ответа");
         button_make_foto.setClickable(false);
     }
 
 
+
+
     // Метод задает параметры заряда камеры и передатчика
-    private void setPower(int power_camera, int power_transmiter) {
+    public void setPower(int power_camera, int power_transmiter) {
         button_battery_camera.setText(power_camera + "%");
         button_battery_transmitter.setText(power_transmiter + "%");
         button_make_foto.setClickable(true);
@@ -198,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Метод увеличения размера картинки
+    @SuppressLint("NewApi")
     private Bitmap getBitmap(Bitmap bm, int size) {
 
         int width = bm.getWidth();
@@ -206,12 +205,13 @@ public class MainActivity extends AppCompatActivity {
         int halfWidth = width * size;
         int halfHeight = height * size;
         bm = Bitmap.createScaledBitmap(bm, halfWidth, halfHeight, true);
+
         return bm;
 
     }
 
     // Отправка запроса устройству
-    public void write(byte[] b) {
+    public static void write(byte[] b) {
         try {
             sOutputStream.write(b);
             Log.d(sTAG, "...Данные отправлены. " + new String(b));
@@ -253,27 +253,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Получаем адресс и имя устройства Bluetooth
         adressBluetooth = getIntent().getStringExtra("Adress");
-     //   nameBluetooth = getIntent().getStringExtra("Name");
+        //   nameBluetooth = getIntent().getStringExtra("Name");
 
 
         button_make_foto = (Button) fragment.getView().findViewById(R.id.buttonMakephoto);
-        button_make_foto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-//                if (downloadImageTask == null) {
-//                    downloadImageTask = new DownloadImageTask();
-//                    downloadImageTask.execute();
-//                } else if (downloadImageTask.getStatus() == AsyncTask.Status.FINISHED) {
-//                    downloadImageTask = new DownloadImageTask();
-//                    downloadImageTask.execute();
-//                }
-
-
-            }
-        });
-
-
         save = (Button) findViewById(R.id.buttonSavePhoto);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -363,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Метод задает обработчики кнопки фото в зависимости от выбранного режима меню
-    public void setMethod() {
+    public  void setMethod() {
         if (this.shootingFoto == 0) { // фото по выстрелу выключено
             if (this.shootingMode == 211) {
                 // режим съемки непрерывный
@@ -521,6 +504,11 @@ public class MainActivity extends AppCompatActivity {
         VALUE_SAVE_POWER = getApplication().getResources().getStringArray(R.array.value_save_power);
 
     }
+
+
+
+
+
 
 
     /// Класс соединения Bluetooth в отдельном потоке ///////
@@ -694,6 +682,7 @@ public class MainActivity extends AppCompatActivity {
             button_make_foto.setClickable(false);
         }
 
+        @SuppressLint("NewApi")
         @Override
         protected Bitmap doInBackground(Void... voids) {
             button_make_foto.setClickable(false);
@@ -747,6 +736,8 @@ public class MainActivity extends AppCompatActivity {
                     bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                     if (bmp != null) {
                         bitmap = bmp;
+                        String config = bitmap.getConfig().toString();
+                        Log.d(sTAG, "Конфигурация " + config);
                     } else {
                         resetInputStream(sInputStream);
                         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);

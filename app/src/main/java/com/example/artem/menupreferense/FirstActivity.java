@@ -129,7 +129,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 
     public String loadAdress() {
         String adress = sharedPreferences.getString(BLUETOOTH_KEY, "");
-        Log.d(sTAG,"sharedPreferenses " + adress + "загружен");
+        Log.d(sTAG,"sharedPreferenses " + adress + " загружен");
         return adress;
     }
 
