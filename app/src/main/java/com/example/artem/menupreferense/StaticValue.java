@@ -50,4 +50,5 @@ public class StaticValue extends Activity{
     public static SharedPreferences sharedPreferences;
 
 
+
 }
