@@ -30,6 +30,11 @@
 
     <!--- Настройки камеры  -->
     <string name="title_setting_cam">Настройки камеры</string>
+
+    <!--- Разрешение фото  -->
+    <string name="resolution_camFoto">Разрешение фото</string>
+    <string name="title_resolution_camFoto">Разрешение фото</string>
+    <string name="key_resolution_camFoto">Resolution_Foto</string>
     <!--- Качество фото  -->
     <string name="quality_camFoto">Качество фото</string>
     <string name="title_quality_camFoto">Качество фото</string>

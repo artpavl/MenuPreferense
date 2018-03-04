@@ -8,12 +8,13 @@ import android.preference.Preference;
  * Created by Artem on 18.11.2017.
  */
 
-public class StaticValue extends Activity{
+public class StaticValue extends Activity {
 
 
-    public static String SPEED_CAM ;
+    public static String SPEED_CAM;
     public static String TRANSMISSION_FREGENCY;
     public static String TRANSMITTER_POWER;
+    public static String RESOLUTION_CAMFOTO;
     public static String QUALITY_CAMFOTO;
     public static String SHOOTING_MODE;
     public static String SHOOTING_FOTO;
@@ -24,9 +25,10 @@ public class StaticValue extends Activity{
 
 
     public static String[] VALUE_SPEED_CAM;
-    public static String[] VALUE_QUALITY_CAMFOTO;
     public static String[] VALUE_TRANSMISSION_FREGENCY;
     public static String[] VALUE_TRANSMITTER_POWER;
+    public static String[] VALUE_RESOLUTION_CAMFOTO;
+    public static String[] VALUE_QUALITY_CAMFOTO;
     public static String[] VALUE_SHOOTING_MODE;
     public static String[] VALUE_SHOOTING_FOTO;
     public static String[] VALUE_DELAY;
@@ -36,9 +38,10 @@ public class StaticValue extends Activity{
 
 
     public static String[] NAME_SPEED_CAM;
-    public static String[] NAME_QUALITY_CAMFOTO;
     public static String[] NAME_TRANSMISSION_FREGENCY;
     public static String[] NAME_TRANSMITTER_POWER;
+    public static String[] NAME_RESOLUTION_CAMFOTO;
+    public static String[] NAME_QUALITY_CAMFOTO;
     public static String[] NAME_SHOOTING_MODE;
     public static String[] NAME_SHOOTING_FOTO;
     public static String[] NAME_DELAY;
@@ -48,7 +51,6 @@ public class StaticValue extends Activity{
 
     public static String LOG = "LOG";
     public static SharedPreferences sharedPreferences;
-
 
 
 }

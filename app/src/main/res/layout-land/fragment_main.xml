@@ -29,9 +29,14 @@
             android:drawableBottom="@drawable/ic_save_black_24dp"
             android:text="@string/savePhoto" />
 
+
+
+
+
     </LinearLayout>
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">

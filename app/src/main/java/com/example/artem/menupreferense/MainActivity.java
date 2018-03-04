@@ -74,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
     static final int numberCommandSettings = 9; // номер каманды 1
     int frequencytTansmission; // частота передачи 2
     int powerTransmitter; // мощность передатчика 3
-    int qualityFoto; // качество фото 4
-    int infratedIllumination; // ик подсветка 5
-    int shootingFoto; // фото по выстрелу 6
-    int sensitivity; // чувствительность 7
-    int beep; // бипер резерв 8
-    int reserve; // резервный байт 9
-
+    int resolution; // разрешение 4
+    int qualityFoto; // качество фото 5
+    int infratedIllumination; // ик подсветка 6
+    int shootingFoto; // фото по выстрелу 7
+    int sensitivity; // чувствительность 8
+    int beep; // бипер резерв 9
+    int reserve; // резервный байт 10
     int shootingMode; // режим съемки
 
     boolean exit = false;
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     //SPP UUID. Look for it
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    public static  Button button_make_foto;
+    public static Button button_make_foto;
     private Button save;
     private Button button_settings;
     private ProgressBar progressBar;
@@ -139,13 +139,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Метод задает параметры заряда камеры и передатчика если нет связи
-     public void setPowerNull() {
+    public void setPowerNull() {
         button_battery_camera.setText("Нет ответа");
         button_battery_transmitter.setText("Нет ответа");
         button_make_foto.setClickable(false);
     }
-
-
 
 
     // Метод задает параметры заряда камеры и передатчика
@@ -244,7 +242,6 @@ public class MainActivity extends AppCompatActivity {
         // Находим ImageView
         touchImageView = (TouchImageView) fragment.getView().findViewById(R.id.imageView);
 
-
         button_battery_camera = findViewById(R.id.battery_cam);
         button_battery_transmitter = findViewById(R.id.battery_transmitter);
         button_mode_camera = findViewById(R.id.mode_cam);
@@ -281,6 +278,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(sTAG, "мощность передатчика =  " + powerTransmitter);
         this.powerTransmitter = Integer.parseInt(powerTransmitter);
 
+        // Разрешение фото
+        String resolution = sharedPreferences.getString(RESOLUTION_CAMFOTO, "6");
+        Log.d(sTAG, "Разрешение фото =  " + resolution);
+        this.resolution = Integer.parseInt(resolution);
+
         // Качество фото
         String qualityFoto = sharedPreferences.getString(QUALITY_CAMFOTO, "201");
         Log.d(sTAG, "Качество фото =  " + qualityFoto);
@@ -296,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(sTAG, "Фото по выстрелу  =  " + shootingFoto);
         // Задержка
         if (shootingFoto) {
-            String delay = sharedPreferences.getString(DELAY, "1");
+            String delay = sharedPreferences.getString(DELAY, "3");
             this.shootingFoto = Integer.parseInt(delay);
             Log.d(sTAG, "Задержка  =  " + this.shootingFoto);
             String sensitivity = sharedPreferences.getString(SENSITIVITY, "3");
@@ -320,11 +322,11 @@ public class MainActivity extends AppCompatActivity {
                 (byte) numberCommandSettings,
                 (byte) this.frequencytTansmission,
                 (byte) this.powerTransmitter,
+                (byte) this.resolution,
                 (byte) this.qualityFoto,
                 (byte) this.infratedIllumination,
                 (byte) this.shootingFoto,
                 (byte) sensitivity,
-                (byte) beep,
                 (byte) reserve,
                 (byte) 10, (byte) 13}; // настройки приложения
 
@@ -346,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Метод задает обработчики кнопки фото в зависимости от выбранного режима меню
-    public  void setMethod() {
+    public void setMethod() {
         if (this.shootingFoto == 0) { // фото по выстрелу выключено
             if (this.shootingMode == 211) {
                 // режим съемки непрерывный
@@ -471,6 +473,7 @@ public class MainActivity extends AppCompatActivity {
         SPEED_CAM = getApplication().getResources().getString(R.string.key_speed_cam);
         TRANSMISSION_FREGENCY = getApplication().getResources().getString(R.string.key_transmission_frequency);
         TRANSMITTER_POWER = getApplication().getResources().getString(R.string.key_transmitter_power);
+        RESOLUTION_CAMFOTO = getApplication().getResources().getString(R.string.key_resolution_camFoto);
         QUALITY_CAMFOTO = getApplication().getResources().getString(R.string.key_quality_camFoto);
         SHOOTING_MODE = getApplication().getResources().getString(R.string.key_shooting_mode);
         SHOOTING_FOTO = getApplication().getResources().getString(R.string.key_shooting_foto);
@@ -481,6 +484,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Строковые массивы текстовых значений
         NAME_SPEED_CAM = getApplication().getResources().getStringArray(R.array.name_speed);
+        NAME_RESOLUTION_CAMFOTO = getApplication().getResources().getStringArray(R.array.name_resolution);
         NAME_QUALITY_CAMFOTO = getApplication().getResources().getStringArray(R.array.name_qualityFoto);
         NAME_TRANSMISSION_FREGENCY = getApplication().getResources().getStringArray(R.array.name_freg);
         NAME_TRANSMITTER_POWER = getApplication().getResources().getStringArray(R.array.name_power);
@@ -493,6 +497,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Строковые массивы значений API
         VALUE_SPEED_CAM = getApplication().getResources().getStringArray(R.array.value_speed);
+        VALUE_RESOLUTION_CAMFOTO = getApplication().getResources().getStringArray(R.array.value_resolution);
         VALUE_QUALITY_CAMFOTO = getApplication().getResources().getStringArray(R.array.value_qualityFoto);
         VALUE_TRANSMISSION_FREGENCY = getApplication().getResources().getStringArray(R.array.value_freg);
         VALUE_TRANSMITTER_POWER = getApplication().getResources().getStringArray(R.array.value_power);
@@ -504,11 +509,6 @@ public class MainActivity extends AppCompatActivity {
         VALUE_SAVE_POWER = getApplication().getResources().getStringArray(R.array.value_save_power);
 
     }
-
-
-
-
-
 
 
     /// Класс соединения Bluetooth в отдельном потоке ///////
@@ -705,14 +705,17 @@ public class MainActivity extends AppCompatActivity {
                 if (command == 12) {
                     int raz1;
                     int raz2;
+                    int raz3;
                     int size_foto;
                     raz1 = sInputStream.read();                          // 6. 1-й байт размера
                     raz2 = sInputStream.read();                          // 7. 2-й байт размера
+                    raz3 = sInputStream.read();                          // 7. 2-й байт размера
 //                    energy_camera = sInputStream.read();                     // 7. Заряд камеры
 //                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
                     Log.d(sTAG, "Байт 1 размера  " + raz1);
                     Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    size_foto = raz1 * 256 + raz2;
+                    Log.d(sTAG, "Байт 3 размера  " + raz2);
+                    size_foto = raz1 * 65536 + raz2 * 256 + raz3;
                     Log.d(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
@@ -915,15 +918,17 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bmp;
                     int raz1;
                     int raz2;
+                    int raz3;
                     int size_foto;
                     raz1 = sInputStream.read();                          // 6. 1-й байт размера
                     raz2 = sInputStream.read();                          // 7. 2-й байт размера
+                    raz3 = sInputStream.read();                          // 7. 2-й байт размера
 //                    energy_camera = sInputStream.read();                     // 7. Заряд камеры
 //                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
                     Log.d(sTAG, "Байт 1 размера  " + raz1);
                     Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    size_foto = raz1 * 256 + raz2;
-                    Log.d(sTAG, "Размер фото " + size_foto);
+                    Log.d(sTAG, "Байт 3 размера  " + raz2);
+                    size_foto = raz1 * 65536 + raz2 * 256 + raz3;
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
                     boolean flagEndOfJpg = true;

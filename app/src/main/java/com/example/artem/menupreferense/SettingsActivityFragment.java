@@ -30,8 +30,9 @@ public class SettingsActivityFragment extends PreferenceFragment {
     List<String> setKeyListPref;
     List<String> setKeySwichPref;
     String valueSwichPref;
+    SharedPreferences mSharedPreferences;
 
-    public static SharedPreferences sharedPreferences;
+//    public static SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -40,11 +41,13 @@ public class SettingsActivityFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences); // load from XML
 
         context = getActivity().getApplicationContext();
-
-        // Получаем объект SharedPreferences
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+//
+//        // Получаем объект SharedPreferences
+//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         // Устанавливаем слушатель изменения настроек
-        sharedPreferences.registerOnSharedPreferenceChangeListener(changeListenerPreferences);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(changeListenerPreferences);
+
 
         //Создаем множество ключей Preferenses
         setKeyListPref = setListKeys(getActivity().getResources().getStringArray(R.array.value_keys_ListPreferenses));
@@ -61,8 +64,9 @@ public class SettingsActivityFragment extends PreferenceFragment {
         // Создаем карту для ключей и значений ListPreferenses
         mapKeyAndValyeListPref = new HashMap<String, Map<String, String>>();
      //   mapKeyAndValyeListPref.put(SPEED_CAM, setMapforSwich(VALUE_SPEED_CAM, NAME_SPEED_CAM));
-        mapKeyAndValyeListPref.put(TRANSMISSION_FREGENCY, setMapforSwich(VALUE_TRANSMISSION_FREGENCY, NAME_TRANSMISSION_FREGENCY));
-        mapKeyAndValyeListPref.put(TRANSMITTER_POWER, setMapforSwich(VALUE_TRANSMITTER_POWER, NAME_TRANSMITTER_POWER));
+      //  mapKeyAndValyeListPref.put(TRANSMISSION_FREGENCY, setMapforSwich(VALUE_TRANSMISSION_FREGENCY, NAME_TRANSMISSION_FREGENCY));
+     //   mapKeyAndValyeListPref.put(TRANSMITTER_POWER, setMapforSwich(VALUE_TRANSMITTER_POWER, NAME_TRANSMITTER_POWER));
+        mapKeyAndValyeListPref.put(RESOLUTION_CAMFOTO, setMapforSwich(VALUE_RESOLUTION_CAMFOTO, NAME_RESOLUTION_CAMFOTO));
         mapKeyAndValyeListPref.put(QUALITY_CAMFOTO, setMapforSwich(VALUE_QUALITY_CAMFOTO, NAME_QUALITY_CAMFOTO));
         mapKeyAndValyeListPref.put(SHOOTING_MODE, setMapforSwich(VALUE_SHOOTING_MODE, NAME_SHOOTING_MODE));
         mapKeyAndValyeListPref.put(DELAY, setMapforSwich(VALUE_DELAY, NAME_DELAY));
@@ -108,25 +112,25 @@ public class SettingsActivityFragment extends PreferenceFragment {
 
     // Метод возвращает значение параметра в текстовом представлении для ListPref
     private String getValue(String key) {
-        String s = sharedPreferences.getString(key, "Не задано");
+        String s = mSharedPreferences.getString(key, "");
         return mapValueListPref.get(s);
     }
 
 
-    // Метод возвращает значение параметра в текстовом представлении для SwichPref
-    private String getValueSwichPref(String key) {
-        boolean s = sharedPreferences.getBoolean(key, false);
-
-
-        return mapValueListPref.get(s);
-    }
+//    // Метод возвращает значение параметра в текстовом представлении для SwichPref
+//    private String getValueSwichPref(String key) {
+//        boolean s = mSharedPreferences.getBoolean(key, false);
+//
+//        return mapValueListPref.get(s);
+//    }
 
 
     // Метод заполняет HashMap ListPref
     private void inflateMapListPref() {
        // setMap(VALUE_SPEED_CAM, NAME_SPEED_CAM, mapValueListPref);
-        setMap(VALUE_TRANSMISSION_FREGENCY, NAME_TRANSMISSION_FREGENCY, mapValueListPref);
-        setMap(VALUE_TRANSMITTER_POWER, NAME_TRANSMITTER_POWER, mapValueListPref);
+      //  setMap(VALUE_TRANSMISSION_FREGENCY, NAME_TRANSMISSION_FREGENCY, mapValueListPref);
+      //  setMap(VALUE_TRANSMITTER_POWER, NAME_TRANSMITTER_POWER, mapValueListPref);
+        setMap(VALUE_RESOLUTION_CAMFOTO, NAME_RESOLUTION_CAMFOTO, mapValueListPref);
         setMap(VALUE_QUALITY_CAMFOTO, NAME_QUALITY_CAMFOTO, mapValueListPref);
         setMap(VALUE_SHOOTING_MODE, NAME_SHOOTING_MODE, mapValueListPref);
         setMap(VALUE_DELAY, NAME_DELAY, mapValueListPref);
@@ -163,7 +167,7 @@ public class SettingsActivityFragment extends PreferenceFragment {
         for (Map.Entry<String, String> entry : s.entrySet()) {
             if (entry.getValue().equals(value)) {
                 valueSwichPref = entry.getKey();
-                Log.e(sTAG, valueSwichPref);
+              //  Log.e(sTAG, valueSwichPref);
             }
 
         }
@@ -178,6 +182,17 @@ public class SettingsActivityFragment extends PreferenceFragment {
 
 
 
+    public static void printValues(Map<String, String> map)
+    {
+        for(Map.Entry<String, String> pair : map.entrySet())
+        {
+            String value = pair.getValue();
+            Log.e(sTAG, value);
+
+        }
+    }
+
+
     private SharedPreferences.OnSharedPreferenceChangeListener changeListenerPreferences =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 // called when the user changes the app's preferences
@@ -189,10 +204,20 @@ public class SettingsActivityFragment extends PreferenceFragment {
                         findPreference(key).setSummary(getValue(key));
                        // получаем значение переменной
                         valueSwichPref = sharedPreferences.getString(key, "Не задано");
+
+                        String s = mSharedPreferences.getString(key, "Не задано");
+
+                   //    printValues(mapValueListPref);
+
+
+                        Log.e(sTAG, mapValueListPref.get(s));
                         Log.e(sTAG, valueSwichPref);
+
+
+
                     // Написать универсальный метод отправки запроса камере
 
-                          Log.e(sTAG, sharedPreferences.getAll().toString());
+                      //    Log.e(sTAG, sharedPreferences.getAll().toString());
                         // Условие для SwichPref
                     } else if (mapKeyAndValyeSwichPref.containsKey(key)) {
                         // Получаем значение переменной по переданному ключу из sharedPreferences
@@ -201,16 +226,6 @@ public class SettingsActivityFragment extends PreferenceFragment {
                         // Получаем значение api по полученному значению
                         getAPICheckBoxPref(key, value);
 
-
-
-                        boolean shootingFoto = sharedPreferences.getBoolean(SHOOTING_FOTO, false);
-                        Log.d(sTAG, "Фото по выстрелу  =  " + shootingFoto);
-                        // Задержка
-                        if (shootingFoto) {
-
-                        } else {
-
-                        }
 
 
                     }

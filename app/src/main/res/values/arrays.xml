@@ -45,6 +45,17 @@
 
 
     <!---НАСТРОЙКИ КАМЕРЫ -->
+
+    <!--- Разрешение фотографии -->
+    <string-array name="name_resolution">
+        <item>640 x 480</item>
+        <item>320 x 240</item>
+           </string-array>
+    <string-array name="value_resolution">
+        <item>26</item>
+        <item>23</item>
+    </string-array>
+
     <!--- Качество фотографии -->
     <string-array name="name_qualityFoto">
         <item>Высокое</item>
@@ -54,7 +65,7 @@
     </string-array>
     <string-array name="value_qualityFoto">
         <item>15</item>
-        <item>36</item>
+        <item>38</item>
         <item>100</item>
         <item>255</item>
     </string-array>
@@ -103,13 +114,23 @@
         <item>3</item>
         <item>4</item>
         <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
     </string-array>
     <string-array name="value_sensitivity">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
+        <item>81</item>
+        <item>82</item>
+        <item>83</item>
+        <item>84</item>
+        <item>85</item>
+        <item>86</item>
+        <item>87</item>
+        <item>88</item>
+        <item>89</item>
+        <item>90</item>
     </string-array>
 
 
@@ -139,16 +160,17 @@
     <!---Массив значений ключей для ListPreferenses-->
     <string-array name="value_keys_ListPreferenses">
      <!--  <item>@string/key_speed_cam</item> -->
-        <item>@string/key_transmission_frequency</item>
-        <item>@string/key_transmitter_power</item>
-        <item>@string/key_quality_camFoto</item>
-        <item>@string/key_shooting_mode</item>
-        <item>@string/key_delay</item>
-        <item>@string/key_sensitivity</item>
-    </string-array>
+    <!--   <item>@string/key_transmission_frequency</item> -->
+      <!-- <item>@string/key_transmitter_power</item> -->
+      <item>@string/key_resolution_camFoto</item>
+      <item>@string/key_quality_camFoto</item>
+      <item>@string/key_shooting_mode</item>
+      <item>@string/key_delay</item>
+      <item>@string/key_sensitivity</item>
+  </string-array>
 
 
-    <!---Массив значений ключей для SwichPreferenses-->
+  <!---Массив значений ключей для SwichPreferenses-->
     <string-array name="value_keys_SwichPreferenses">
         <item>@string/key_shooting_foto</item>
         <item>@string/key_infrared_illumination</item>
