@@ -93,11 +93,11 @@
 
     <!---Задержка -->
     <string-array name="name_delay">
-        <item>1 c.</item>
-        <item>2 c.</item>
-        <item>3 c.</item>
-        <item>4 c.</item>
-        <item>5 c.</item>
+        <item>1 cек.</item>
+        <item>2 cек.</item>
+        <item>3 cек.</item>
+        <item>4 cек.</item>
+        <item>5 cек.</item>
     </string-array>
     <string-array name="value_delay">
         <item>1</item>

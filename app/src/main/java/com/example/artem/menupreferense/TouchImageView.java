@@ -219,8 +219,8 @@ public class TouchImageView extends android.support.v7.widget.AppCompatImageView
     }
 
     /**
-     * Save the current matrix and view dimensions
-     * in the prevMatrix and prevView variables.
+     * Сохранить текущую матрицу и просмотреть размеры
+     * в переменных prevMatrix и prevView.
      */
     private void savePreviousImageValues() {
         if (matrix != null && viewHeight != 0 && viewWidth != 0) {
@@ -375,11 +375,10 @@ public class TouchImageView extends android.support.v7.widget.AppCompatImageView
      * @param scaleType
      */
     public void setZoom(float scale, float focusX, float focusY, ScaleType scaleType) {
-        //
-        // setZoom can be called before the image is on the screen, but at this point,
-        // image and view sizes have not yet been calculated in onMeasure. Thus, we should
-        // delay calling setZoom until the view has been measured.
-        //
+
+        //   setZoom можно вызвать до того, как изображение появится на экране, но в этот момент
+        // размеры изображения и вида еще не были вычислены в onMeasure. Таким образом, мы должны
+        // отложить вызов setZoom до тех пор, пока не будет измерено представление.
         if (!onDrawReady) {
             delayedZoomVariables = new ZoomVariables(scale, focusX, focusY, scaleType);
             return;
@@ -807,8 +806,8 @@ public class TouchImageView extends android.support.v7.widget.AppCompatImageView
     }
 
     /**
-     * Responsible for all touch events. Handles the heavy lifting of drag and also sends
-     * touch events to Scale Detector and Gesture Detector.
+     * Ответственный за все события касания. Обрабатывает тяжелый подъем сопротивления, а также отправляет
+     * коснитесь событий, чтобы детектор масштаба и детектор жестов.
      *
      * @author Ortiz
      */

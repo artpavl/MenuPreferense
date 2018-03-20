@@ -81,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
     int sensitivity; // чувствительность 8
     int beep; // бипер резерв 9
     int reserve; // резервный байт 10
+
+
     int shootingMode; // режим съемки
 
     boolean exit = false;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static Button button_make_foto;
     private Button save;
+    private ProgressBar mProgressBar;
     private Button button_settings;
     private ProgressBar progressBar;
     // Запрос на производство фотографии
@@ -262,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        mProgressBar = fragment.getView().findViewById(R.id.progressBar);
 
 
     }
@@ -318,16 +322,16 @@ public class MainActivity extends AppCompatActivity {
         reserve = 0;
 
         returnSettings = new byte[]{
-                (byte) numberCam,
-                (byte) numberCommandSettings,
-                (byte) this.frequencytTansmission,
-                (byte) this.powerTransmitter,
-                (byte) this.resolution,
-                (byte) this.qualityFoto,
-                (byte) this.infratedIllumination,
-                (byte) this.shootingFoto,
-                (byte) sensitivity,
-                (byte) reserve,
+                (byte) numberCam, // 0
+                (byte) numberCommandSettings, //1
+                (byte) this.frequencytTansmission, //2
+                (byte) this.powerTransmitter, //3
+                (byte) this.resolution, // 4
+                (byte) this.qualityFoto,  //5
+                (byte) this.infratedIllumination, // 6
+                (byte) this.shootingFoto, // 7
+                (byte) sensitivity, //8
+                (byte) reserve, // 9
                 (byte) 10, (byte) 13}; // настройки приложения
 
 
@@ -673,8 +677,9 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
     }
 
-
-    class DownloadImageTask extends AsyncTask<Void, Void, Bitmap> {
+    /************************************************************************/
+    // Одиночное фото
+    class DownloadImageTask extends AsyncTask<Void, Integer, Bitmap> {
 
         @Override
         protected void onPreExecute() {
@@ -714,7 +719,7 @@ public class MainActivity extends AppCompatActivity {
 //                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
                     Log.d(sTAG, "Байт 1 размера  " + raz1);
                     Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    Log.d(sTAG, "Байт 3 размера  " + raz2);
+                    Log.d(sTAG, "Байт 3 размера  " + raz3);
                     size_foto = raz1 * 65536 + raz2 * 256 + raz3;
                     Log.d(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -722,6 +727,7 @@ public class MainActivity extends AppCompatActivity {
                     boolean flagEndOfJpg = true;
                     int new_temp = 0;
                     int previous_temp = 0;
+                    mProgressBar.setMax(size_foto);
 
                     for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
                         new_temp = sInputStream.read();
@@ -732,6 +738,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         previous_temp = new_temp;
                         count++;
+                        publishProgress(count);
                     }
                     Log.d(sTAG, "Прочитано " + count);
 
@@ -746,32 +753,8 @@ public class MainActivity extends AppCompatActivity {
                         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
                     }
 
-//                    while (count < size_foto) {
-//                        byteArrayOutputStream.write(sInputStream.read());
-//                        count++;
-//                        // проверять
-//                    }
-//                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-//                    Log.d(sTAG, "Массив " + byteArray.length);
-//                    Log.d(sTAG, "1 " + (byteArray[0]));
-//                    Log.d(sTAG, "2 " + (byteArray[1]));
-//                    Log.d(sTAG, "4 " + (byteArray[byteArray.length - 2]));
-//                    Log.d(sTAG, "3 " + (byteArray[byteArray.length - 1]));
-//
-//                    if (byteArray[0] == (byte) 255 & (int) byteArray[1] == (byte) 216 & byteArray[byteArray.length - 2] == (byte) 255 & byteArray[byteArray.length - 1] == (byte) 217) {
-//                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//                        /// Если не удалось расшифровать картинку задаем ее по умолчанию
-//                    } else {
-//                        resetInputStream(sInputStream);
-//                        if (bitmap == null) {
-//                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-//                        }
-//
-//                    }
-
                 } else {
                     resetInputStream(sInputStream);
-//
 
                 }
 
@@ -814,8 +797,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            mProgressBar.setProgress(values[0]);
+        }
     }
 
+    /*****************************************************************************/
 
     // Класс отправляет запрос на настройки камере и обрабатывает ответ
     class ReturnSettings extends AsyncTask<Void, Void, Integer> {
@@ -855,6 +843,8 @@ public class MainActivity extends AppCompatActivity {
                             status = 1;
                             break;
                         }
+                    } else {
+                        resetInputStream(sInputStream);
                     }
                 } catch (IOException e) {
                     status = 0;
@@ -872,15 +862,15 @@ public class MainActivity extends AppCompatActivity {
                 button_make_foto.setClickable(true);
                 setMethod();
 
-
             } else {
                 setPowerNull();
             }
         }
-
     }
 
-    class Loop extends AsyncTask<Void, Void, Bitmap> {
+    /***********************************************************/
+
+    class Loop extends AsyncTask<Void, Integer, Bitmap> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -927,13 +917,15 @@ public class MainActivity extends AppCompatActivity {
 //                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
                     Log.d(sTAG, "Байт 1 размера  " + raz1);
                     Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    Log.d(sTAG, "Байт 3 размера  " + raz2);
+                    Log.d(sTAG, "Байт 3 размера  " + raz3);
                     size_foto = raz1 * 65536 + raz2 * 256 + raz3;
+                    Log.d(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
                     boolean flagEndOfJpg = true;
                     int new_temp = 0;
                     int previous_temp = 0;
+                    mProgressBar.setMax(size_foto);
 
                     for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
                         new_temp = sInputStream.read();
@@ -944,41 +936,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                         previous_temp = new_temp;
                         count++;
+                        publishProgress(count);
                     }
                     Log.d(sTAG, "Прочитано " + count);
-
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
                     bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
                     if (bmp != null) {
                         bitmap = bmp;
                     } else {
                         resetInputStream(sInputStream);
                         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
                     }
-//                    while (count < size_foto) {
-//                        if (isCancelled()) {
-//                            resetInputStream(sInputStream);
-//                            return null;
-//                        }
-//                        byteArrayOutputStream.write(sInputStream.read());
-//                        count++;
-//
-//                    }
-//                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-//                    Log.d(sTAG, "Массив " + byteArray.length);
-//                    Log.d(sTAG, "1 " + (byteArray[0]));
-//                    Log.d(sTAG, "2 " + (byteArray[1]));
-//                    Log.d(sTAG, "4 " + (byteArray[byteArray.length - 2]));
-//                    Log.d(sTAG, "3 " + (byteArray[byteArray.length - 1]));
-//
-//                    if (byteArray[0] == (byte) 255 & (int) byteArray[1] == (byte) 216 & byteArray[byteArray.length - 2] == (byte) 255 & byteArray[byteArray.length - 1] == (byte) 217) {
-//                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//                        /// Если не удалось расшифровать картинку задаем ее по умолчанию
-//                    } else {
-//                        resetInputStream(sInputStream);
-//                        //  bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-//
-//                    }
 
                 } else {
                     resetInputStream(sInputStream);
@@ -1043,13 +1012,17 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            mProgressBar.setProgress(values[0]);
+        }
     }
 
     //// Цикл фото по выстрелу
-    class LoopShot extends AsyncTask<Void, Void, Bitmap> {
+    class LoopShot extends AsyncTask<Void, Integer, Bitmap> {
         @Override
         protected void onPreExecute() {
-            button_make_foto.setText("Отмена");
+            // button_make_foto.setText("Отмена");
         }
 
         @Override
@@ -1081,20 +1054,24 @@ public class MainActivity extends AppCompatActivity {
 //
                     int raz1;
                     int raz2;
+                    int raz3;
                     int size_foto;
                     raz1 = sInputStream.read();                          // 6. 1-й байт размера
                     raz2 = sInputStream.read();                          // 7. 2-й байт размера
+                    raz3 = sInputStream.read();                          // 7. 2-й байт размера
 //                    energy_camera = sInputStream.read();                     // 7. Заряд камеры
 //                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
                     Log.d(sTAG, "Байт 1 размера  " + raz1);
                     Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    size_foto = raz1 * 256 + raz2;
+                    Log.d(sTAG, "Байт 3 размера  " + raz3);
+                    size_foto = raz1 * 65536 + raz2 * 256 + raz3;
                     Log.d(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
                     boolean flagEndOfJpg = true;
                     int new_temp = 0;
                     int previous_temp = 0;
+                    mProgressBar.setMax(size_foto);
 
                     for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
                         new_temp = sInputStream.read();
@@ -1105,16 +1082,15 @@ public class MainActivity extends AppCompatActivity {
                         }
                         previous_temp = new_temp;
                         count++;
+                        publishProgress(count);
                     }
                     Log.d(sTAG, "Прочитано " + count);
 
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
                     bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
-
                 } else {
                     resetInputStream(sInputStream);
-
                 }
 
             } catch (IOException e) {
@@ -1142,13 +1118,19 @@ public class MainActivity extends AppCompatActivity {
                 touchImageView.setImageBitmap(result);
                 loopShot = new LoopShot();
                 loopShot.execute();
+                Log.d(sTAG, " LoopShot onPostExecute отработал ");
+                return;
             } else {
                 touchImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.semarobo));
                 loopShot = new LoopShot();
                 loopShot.execute();
+                return;
             }
-            Log.d(sTAG, " LoopShot onPostExecute отработал ");
-            return;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            mProgressBar.setProgress(values[0]);
         }
 
 

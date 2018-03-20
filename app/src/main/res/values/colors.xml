@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="green">#50ff40</color>
     <color name="green_dark">#104d0b</color>
+
+
+    <color name="backgroundButton">#de1d5484</color>
 </resources>
