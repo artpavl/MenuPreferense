@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -18,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -29,10 +31,10 @@ import static com.example.artem.menupreferense.GlobalVeriable.BLUETOOTH_KEY;
 import static com.example.artem.menupreferense.GlobalVeriable.sTAG;
 import static com.example.artem.menupreferense.StaticValue.*;
 
-public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.OnHeadlineSelectedListener {
+public class FirstActivity extends AppCompatActivity implements DialogBTSearch.OnHeadlineSelectedListener {
     private static final int MY_PERMISSION_REQUEST_CONSTANT = 1;
     public static String TAG = sTAG;
-   public static BluetoothAdapter mbluetoothAdapter;
+    public static BluetoothAdapter mbluetoothAdapter;
     Button btnFindBluetooth;
     private static final int ENABLE_BT_REQUEST_CODE = 1; //
     public static ArrayList<BluetoothDevice> mBTDevices;
@@ -109,11 +111,11 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // Подключаемся к ранее подключенному устройству
-                if(loadAdress() != null){
-                    if(device.getAddress().equals(loadAdress()) ){
+                if (loadAdress() != null) {
+                    if (device.getAddress().equals(loadAdress())) {
                         mbluetoothAdapter.cancelDiscovery();
                         dialog.dismiss();
-                        Intent i = new Intent(getApplicationContext(),MainActivity.class);
+                        Intent i = new Intent(getApplicationContext(), MainActivity.class);
                         i.putExtra("Adress", device.getAddress());
                         startActivity(i);
                     }
@@ -130,10 +132,9 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
     };
 
 
-
     public String loadAdress() {
         String adress = sharedPreferences.getString(BLUETOOTH_KEY, "");
-        Log.d(sTAG,"sharedPreferenses " + adress + " загружен");
+        Log.d(sTAG, "sharedPreferenses " + adress + " загружен");
         return adress;
     }
 
@@ -155,18 +156,22 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);//Запрет выключения экрана
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         mbluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         btnFindBluetooth = (Button) findViewById(R.id.btnFindBluetooth);
         mBTDevices = new ArrayList<>();
 
 
-       //  Задание настроек по умолчанию
+        //  Задание настроек по умолчанию
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         // Получаем объект SharedPreferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSION_REQUEST_CONSTANT);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_CONSTANT);
 
         btnFindBluetooth.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,7 +182,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
                 dialog = new DialogBTSearch();
 
                 dialog.show(getSupportFragmentManager(), "bt");
-                Log.d(TAG,"dialog.show");
+                Log.d(TAG, "dialog.show");
                 // progressBar.setVisibility(ProgressBar.VISIBLE);
                 //  btnDiscover();
 
@@ -213,7 +218,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
     }
 
 
-
     // Метод поиска удаленных устройств bluetooth
     public void btnDiscover() {
 
@@ -227,7 +231,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
             Log.d(TAG, " btnDiscover: Обнаружение отменено");
 
 
-         //   checkBTPermission();
+            //   checkBTPermission();
 
             mbluetoothAdapter.startDiscovery(); //Запустите процесс обнаружения удаленных устройств.
             IntentFilter discoverDeviceIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -235,7 +239,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 
         }
         if (!mbluetoothAdapter.isDiscovering()) {
-         //  checkBTPermission();
+            //  checkBTPermission();
             mbluetoothAdapter.startDiscovery(); //Запустите процесс обнаружения удаленных устройств.
             IntentFilter discoverDeviceIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
             registerReceiver(mBroadCastReceiver3, discoverDeviceIntent);
@@ -254,8 +258,6 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
 //        }
 //
 //    }
-
-
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -289,7 +291,7 @@ public class FirstActivity extends AppCompatActivity implements  DialogBTSearch.
         Log.d(TAG, " Имя устройства  " + name);
         Log.d(TAG, " Адресс устройства  " + adress);
         dialog.dismiss();
-        Intent i = new Intent(getApplicationContext(),MainActivity.class);
+        Intent i = new Intent(getApplicationContext(), MainActivity.class);
         i.putExtra("Name", name);
         i.putExtra("Adress", adress);
         startActivity(i);

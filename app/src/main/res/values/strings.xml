@@ -72,6 +72,7 @@
     <string name="battery_charge_transmitter">передатчик</string>
     <string name="savePhoto">Сохранить</string>
     <string name="find_gadget">Найденные устройства</string>
+    <string name="connect">Подключение</string>
 
 
 </resources>

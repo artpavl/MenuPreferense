@@ -1,5 +1,6 @@
 package com.example.artem.menupreferense;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -8,11 +9,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,7 +29,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -45,7 +49,40 @@ import static com.example.artem.menupreferense.GlobalVeriable.sInputStream;
 import static com.example.artem.menupreferense.GlobalVeriable.sOutputStream;
 import static com.example.artem.menupreferense.GlobalVeriable.sRestartGlobalVeriable;
 import static com.example.artem.menupreferense.GlobalVeriable.sTAG;
-import static com.example.artem.menupreferense.StaticValue.*;
+import static com.example.artem.menupreferense.StaticValue.DELAY;
+import static com.example.artem.menupreferense.StaticValue.INFRATED_ILLUMINATION;
+import static com.example.artem.menupreferense.StaticValue.NAME_DELAY;
+import static com.example.artem.menupreferense.StaticValue.NAME_INFRATED_ILLUMINATION;
+import static com.example.artem.menupreferense.StaticValue.NAME_QUALITY_CAMFOTO;
+import static com.example.artem.menupreferense.StaticValue.NAME_RESOLUTION_CAMFOTO;
+import static com.example.artem.menupreferense.StaticValue.NAME_SAVE_POWER;
+import static com.example.artem.menupreferense.StaticValue.NAME_SENSITIVITY;
+import static com.example.artem.menupreferense.StaticValue.NAME_SHOOTING_FOTO;
+import static com.example.artem.menupreferense.StaticValue.NAME_SHOOTING_MODE;
+import static com.example.artem.menupreferense.StaticValue.NAME_SPEED_CAM;
+import static com.example.artem.menupreferense.StaticValue.NAME_TRANSMISSION_FREGENCY;
+import static com.example.artem.menupreferense.StaticValue.NAME_TRANSMITTER_POWER;
+import static com.example.artem.menupreferense.StaticValue.QUALITY_CAMFOTO;
+import static com.example.artem.menupreferense.StaticValue.RESOLUTION_CAMFOTO;
+import static com.example.artem.menupreferense.StaticValue.SAVE_POWER;
+import static com.example.artem.menupreferense.StaticValue.SENSITIVITY;
+import static com.example.artem.menupreferense.StaticValue.SHOOTING_FOTO;
+import static com.example.artem.menupreferense.StaticValue.SHOOTING_MODE;
+import static com.example.artem.menupreferense.StaticValue.SPEED_CAM;
+import static com.example.artem.menupreferense.StaticValue.TRANSMISSION_FREGENCY;
+import static com.example.artem.menupreferense.StaticValue.TRANSMITTER_POWER;
+import static com.example.artem.menupreferense.StaticValue.VALUE_DELAY;
+import static com.example.artem.menupreferense.StaticValue.VALUE_INFRATED_ILLUMINATION;
+import static com.example.artem.menupreferense.StaticValue.VALUE_QUALITY_CAMFOTO;
+import static com.example.artem.menupreferense.StaticValue.VALUE_RESOLUTION_CAMFOTO;
+import static com.example.artem.menupreferense.StaticValue.VALUE_SAVE_POWER;
+import static com.example.artem.menupreferense.StaticValue.VALUE_SENSITIVITY;
+import static com.example.artem.menupreferense.StaticValue.VALUE_SHOOTING_FOTO;
+import static com.example.artem.menupreferense.StaticValue.VALUE_SHOOTING_MODE;
+import static com.example.artem.menupreferense.StaticValue.VALUE_SPEED_CAM;
+import static com.example.artem.menupreferense.StaticValue.VALUE_TRANSMISSION_FREGENCY;
+import static com.example.artem.menupreferense.StaticValue.VALUE_TRANSMITTER_POWER;
+import static com.example.artem.menupreferense.StaticValue.sharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,14 +95,20 @@ public class MainActivity extends AppCompatActivity {
     Button button_battery_transmitter;
     Button button_mode_camera;
     TouchImageView touchImageView;
-    DownloadImageTask downloadImageTask;
     ReturnSettings returnSetting;
     BTConnectThread btConnectThread;
+
+
+    DownloadImageTask downloadImageTask;
     Loop loop;
     LoopShot loopShot;
+    SavePhoto mSavePhoto;
+
     String adressBluetooth;
     String nameBluetooth;
-    Bitmap bitmap;
+    Context mContext;
+    static Bitmap bitmap;
+    boolean error;
     int energy_camera;
     int energy_transmiter;
 
@@ -88,10 +131,11 @@ public class MainActivity extends AppCompatActivity {
     boolean exit = false;
     boolean stopFoto = false;
     //SPP UUID. Look for it
+    //  static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     public static Button button_make_foto;
-    private Button save;
+    private Button button_save_photo;
     private ProgressBar mProgressBar;
     private Button button_settings;
     private ProgressBar progressBar;
@@ -117,26 +161,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-//            String action = intent.getAction();
-//            if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-//                BluetoothDevice mDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-//                    //Указывает, что удаленное устройство соединено (сопряжено).
-//                    Log.d(sTAG, "mBroadCastReceiver4 удаленное устройство соединено ");
-//                    Toast.makeText(getApplicationContext(),"Удаленное устройство соединино",Toast.LENGTH_LONG).show();
-//                }
-//                if (mDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
-//                    //Указывает, что соединение с удаленным устройством выполняется.
-//                    Log.d(sTAG, "mBroadCastReceiver4 соединение с удаленным устройством выполняется ");
-//                }
-//                if (mDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-//                    //  Указывает, что удаленное устройство не соединено (сопряжено).
-//                    Log.d(sTAG, "mBroadCastReceiver4 устройство не соединено ");
-//
-//                }
-//
-//            }
-
         }
     };
 
@@ -157,44 +181,80 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Метод сохранения картинки
-    public void savePictyre() {
+    @SuppressLint("NewApi")
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean checkIfAlreadyhavePermission() {
 
-        if (bitmap != null) {
-            Date date = new Date();
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy '  ' kk:mm:ss");
-            String filename = formatter.format(date);
-            //filename = filename + ".png";
-            String fullpath = getFilesDir() + "/" + "OcoCam";
-            //Создание объекта файла.
-            File fhandle = new File(fullpath, filename);
-            try {
-                //Если нет директорий в пути, то они будут созданы:
-                if (!fhandle.getParentFile().exists())
-                    fhandle.getParentFile().mkdirs();
-                //Если файл существует, то он будет перезаписан:
-                fhandle.createNewFile();
-                OutputStream fOut = new FileOutputStream(fhandle);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-                fOut.flush();
-                fOut.close();
-                // регистрация в фотоальбоме
-                MediaStore.Images.Media.insertImage(getContentResolver(), fhandle.getAbsolutePath(), fhandle.getName(), fhandle.getName());
-                Toast.makeText(getApplicationContext(),
-                        "Сохранено ",
-                        Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(getApplicationContext(),
-                        "Не удалость сохранить",
-                        Toast.LENGTH_LONG).show();
-            }
+
+        checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if ((checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)) {
+
+            //show dialog to ask permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
+            return true;
         } else {
-            Toast.makeText(getApplicationContext(),
-                    "Отсутствует фото для сохранения",
-                    Toast.LENGTH_LONG).show();
+            return false;
         }
 
+
     }
+
+    // Метод сохранения картинки
+//    public void savePicture() {
+//
+//        if (bitmap != null) {
+//
+//            cancelFotos();
+//
+//
+//            Date date = new Date();
+//            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy '  ' kk:mm:ss");
+//            final String filename = formatter.format(date) + ".jpg";
+//            //filename = filename +;
+//            String fullpath = getFilesDir() + "/" + "OcoCam";
+//            //Создание объекта файла.
+//            File fhandle = new File(fullpath, filename);
+//
+//
+//            try {
+//
+//                Log.d(sTAG, "...Сохранено.     " + filename);
+//                //Если нет директорий в пути, то они будут созданы:
+//                if (!fhandle.getParentFile().exists())
+//                    fhandle.getParentFile().mkdirs();
+//                //Если файл существует, то он будет перезаписан:
+//                fhandle.createNewFile();
+//                OutputStream fOut = new FileOutputStream(fhandle);
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+//                fOut.flush();
+//                fOut.close();
+//                // регистрация в фотоальбоме
+//                MediaStore.Images.Media.insertImage(getContentResolver(), fhandle.getAbsolutePath(), fhandle.getName(), fhandle.getName());
+//
+//                Log.d(sTAG, "...Сохранено.     " + fhandle.getName());
+//
+//
+//                Toast.makeText(getApplicationContext(),
+//                        "Сохранено ",
+//                        Toast.LENGTH_SHORT).show();
+//            } catch (IOException e) {
+//                Toast.makeText(getApplicationContext(),
+//                        "Не удалость сохранить",
+//                        Toast.LENGTH_LONG).show();
+//            }
+//
+//        } else {
+//            Toast.makeText(getApplicationContext(),
+//                    "Отсутствует фото для сохранения",
+//                    Toast.LENGTH_LONG).show();
+//        }
+//
+//    }
+
 
     // Метод увеличения размера картинки
     @SuppressLint("NewApi")
@@ -257,20 +317,42 @@ public class MainActivity extends AppCompatActivity {
 
 
         button_make_foto = (Button) fragment.getView().findViewById(R.id.buttonMakephoto);
-        save = (Button) findViewById(R.id.buttonSavePhoto);
-        save.setOnClickListener(new View.OnClickListener() {
+        button_save_photo = (Button) findViewById(R.id.buttonSavePhoto);
+        button_save_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                savePictyre();
 
+                int MyVersion = Build.VERSION.SDK_INT;
+                if (MyVersion > Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    checkIfAlreadyhavePermission();
+                }
+
+
+                //   savePicture();
+                if (bitmap != null) {
+                    if (mSavePhoto == null) {
+                        mSavePhoto = new SavePhoto();
+                        mSavePhoto.execute();
+                    } else if (mSavePhoto.getStatus() == AsyncTask.Status.FINISHED) {
+                        Log.d(sTAG, "mSavePhoto.getStatus() == AsyncTask.Status.FINISHED");
+                        mSavePhoto = new SavePhoto();
+                        mSavePhoto.execute();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Нет данных для сохранения",
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
-        mProgressBar = fragment.getView().findViewById(R.id.progressBar);
 
+        mProgressBar = fragment.getView().findViewById(R.id.progressBar);
 
     }
 
-    // Метод возвращает настройки приложения
+    /**
+     * Метод возвращает настройки приложения
+     */
     private void getSettings() {
         // Частота передачи
         String frequencytTansmission = sharedPreferences.getString(TRANSMISSION_FREGENCY, "111");
@@ -351,33 +433,57 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Метод задает обработчики кнопки фото в зависимости от выбранного режима меню
+    /**
+     * Метод задает обработчики кнопки фото в зависимости от выбранного режима меню
+     */
     public void setMethod() {
         if (this.shootingFoto == 0) { // фото по выстрелу выключено
             if (this.shootingMode == 211) {
                 // режим съемки непрерывный
+                button_make_foto.setText(R.string.snapshot);
                 button_make_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
-                        if (stopFoto) {
-                            stopFoto = false;
-                            loop.cancel(true); // отменяем Loop
-                            button_make_foto.setText("Отменяю");
-                            button_make_foto.setClickable(false);
-                            Log.d(sTAG, "Отменяем Loop ");
-                        } else {
-                            stopFoto = true;
-                            if (loop == null) {
-                                loop = new Loop();
-                                loop.execute();
-                                Log.d(sTAG, "Зпускаем Loop ");
-                            } else if (loop.isCancelled()) {
-                                loop = new Loop();
-                                loop.execute();
-                                Log.d(sTAG, "Зпускаем Loop ");
-                            }
+                        if (loop == null) {
+                            loop = new Loop();
+                            loop.execute();
+                            Log.d(sTAG, "loop = new Loop();");
+                            Log.d(sTAG, "Зпускаем Loop ");
+                        } else if (loop.getStatus() == AsyncTask.Status.FINISHED) {
+                            loop = new Loop();
+                            loop.execute();
+                            Log.d(sTAG, "loop.getStatus() == AsyncTask.Status.FINISHED");
+                            Log.d(sTAG, "Зпускаем Loop ");
+                        } else if ((loop.getStatus() == AsyncTask.Status.RUNNING || loop.getStatus() == AsyncTask.Status.RUNNING) && !loop.isCancelled()) {
+                            loop.cancel(true);
+                            Log.d(sTAG, "loop.cancel(true);");
                         }
+
+
+//                        if (stopFoto) {
+//                            if (loop.isCancelled()) {
+//                                Log.d(sTAG, "Loop уже был отменен");
+//                            } else {
+//                                stopFoto = false;
+//                                loop.cancel(true); // отменяем Loop
+//                                button_make_foto.setText("Отменяю");
+//                                button_make_foto.setClickable(false);
+//                                Log.d(sTAG, "Отменяем Loop ");
+//                            }
+//
+//                        } else {
+//                            stopFoto = true;
+//                            if (loop == null) {
+//                                loop = new Loop();
+//                                loop.execute();
+//                                Log.d(sTAG, "Зпускаем Loop ");
+//                            } else if (loop.getStatus() == AsyncTask.Status.FINISHED) {
+//                                loop = new Loop();
+//                                loop.execute();
+//                                Log.d(sTAG, "Зпускаем Loop ");
+//                            }
+//                        }
 
                     }
                 });
@@ -418,16 +524,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //Метод сохранения адреса устройства в настройках
-//    public void seveAdress(String adressBluetooth) {
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        editor.putString(GlobalVeriable.BLUETOOTH_KEY, adressBluetooth);
-//        editor.commit();
-//        Log.d(sTAG, "Адресс сохранен  " + adressBluetooth);
-//    }
-
-    // Метод очищает поток от лишних байт
+    /**
+     * Метод очищает поток от лишних байт
+     */
     private void resetInputStream(InputStream is) throws IOException {
+
         int n = 0;
         do {
             TimeUnit.SECONDS.toMillis(1000);
@@ -454,12 +555,11 @@ public class MainActivity extends AppCompatActivity {
             if (loop != null) {
                 Log.d(sTAG, "onOptionsItemSelected");
                 loop.cancel(true);
-                stopFoto = false;
-                sRestartGlobalVeriable();
+            //    sRestartGlobalVeriable();
             }
             if (loopShot != null) {
                 loopShot.cancel(true);
-                stopFoto = false;
+             //   sRestartGlobalVeriable();
             }
 
 
@@ -515,7 +615,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /// Класс соединения Bluetooth в отдельном потоке ///////
+    /**
+     * Класс соединения Bluetooth в отдельном потоке
+     */
     public class BTConnectThread extends AsyncTask<Void, Void, Void> {
 
 
@@ -526,6 +628,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(sTAG, "Адресс сохранен  " + adressBluetooth);
         }
 
+        @SuppressLint("NewApi")
         @Override
         protected Void doInBackground(Void... voids) {
             if (sBluetoothSocket != null) {
@@ -533,10 +636,16 @@ public class MainActivity extends AppCompatActivity {
                 // Toast.makeText(getApplicationContext(), "Соединение установлено",  Toast.LENGTH_SHORT).show();
 
                 try {
-                    sBluetoothSocket.connect();
+                    if(sBluetoothSocket.isConnected()){
+                        Log.d(sTAG, "sBluetoothSocket.isConnected() == true ");
                     sInputStream = sBluetoothSocket.getInputStream();
                     sOutputStream = sBluetoothSocket.getOutputStream();
-
+                    } else  {
+                        Log.d(sTAG, "sBluetoothSocket.isConnected() == false ");
+                        sBluetoothSocket.connect();
+                        sInputStream = sBluetoothSocket.getInputStream();
+                        sOutputStream = sBluetoothSocket.getOutputStream();
+                    }
 
                 } catch (IOException e) {
                     Log.d(sTAG, "Не удается создать потоки");
@@ -556,13 +665,22 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     // Создаем сокет подключения
+
                     sBluetoothSocket = sBluetoothDevice.createRfcommSocketToServiceRecord(myUUID);
+
 
                     Log.d(sTAG, "Создаем сокет");
 
+
                     try {
 
+
                         sBluetoothSocket.connect();
+
+
+                        Log.d(sTAG, "sBluetoothSocket =  " + sBluetoothSocket.toString());
+                        Log.d(sTAG, "sBluetoothSocket.connect()  =  " + sBluetoothSocket.isConnected());
+
 
                         if (sBluetoothSocket.isConnected()) {
                             Log.d(sTAG, "Сокет подключен");
@@ -595,6 +713,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                         }
+
+                        Log.d(sTAG, "Вышли их try");
 
 
                     } catch (IOException e) {
@@ -642,8 +762,7 @@ public class MainActivity extends AppCompatActivity {
                 btConnectThread = new BTConnectThread();
                 btConnectThread.execute();
             }
-
-
+            error = false;
         } else {
             exit = true;
         }
@@ -652,10 +771,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        cancelFotos();
         unregisterReceiver(mBroadCastReceiver4);
-        sRestartGlobalVeriable();
+        error = true;
+      //  sRestartGlobalVeriable();
         Log.d(sTAG, "onStop");
         super.onStop();
+    }
+
+    /**
+     * Отмена фотографирования
+     */
+    public void cancelFotos() {
+
+        if (downloadImageTask != null) {
+            downloadImageTask.cancel(true);
+        }
+        if (loop != null) {
+            loop.cancel(true);
+        }
+        if (loopShot != null) {
+            loopShot.cancel(true);
+        }
+        mProgressBar.setProgress(0);
     }
 
 
@@ -677,135 +815,10 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
     }
 
-    /************************************************************************/
-    // Одиночное фото
-    class DownloadImageTask extends AsyncTask<Void, Integer, Bitmap> {
 
-        @Override
-        protected void onPreExecute() {
-            button_make_foto.setText("Делаю");
-            button_make_foto.setClickable(false);
-        }
-
-        @SuppressLint("NewApi")
-        @Override
-        protected Bitmap doInBackground(Void... voids) {
-            button_make_foto.setClickable(false);
-            write(makeFoto);
-
-            byte number_cam;
-            byte command;
-            byte command_N;
-            byte command_R;
-            Bitmap bmp;
-
-            try {
-
-                // Добавить сброс камеры через 1 сек
-
-                number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
-                Log.d(sTAG, "Номер камеры " + number_cam);
-                command = (byte) sInputStream.read();                      // 2. Номер команды (команда 12)
-                Log.d(sTAG, "Номер команды " + command);
-                if (command == 12) {
-                    int raz1;
-                    int raz2;
-                    int raz3;
-                    int size_foto;
-                    raz1 = sInputStream.read();                          // 6. 1-й байт размера
-                    raz2 = sInputStream.read();                          // 7. 2-й байт размера
-                    raz3 = sInputStream.read();                          // 7. 2-й байт размера
-//                    energy_camera = sInputStream.read();                     // 7. Заряд камеры
-//                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
-                    Log.d(sTAG, "Байт 1 размера  " + raz1);
-                    Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    Log.d(sTAG, "Байт 3 размера  " + raz3);
-                    size_foto = raz1 * 65536 + raz2 * 256 + raz3;
-                    Log.d(sTAG, "Размер фото " + size_foto);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    int count = 0;
-                    boolean flagEndOfJpg = true;
-                    int new_temp = 0;
-                    int previous_temp = 0;
-                    mProgressBar.setMax(size_foto);
-
-                    for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
-                        new_temp = sInputStream.read();
-                        byteArrayOutputStream.write(new_temp);
-                        if ((previous_temp == 0xFF) && (new_temp == 0xD9)) {
-                            flagEndOfJpg = false;
-                            Log.d(sTAG, "конец фото ");
-                        }
-                        previous_temp = new_temp;
-                        count++;
-                        publishProgress(count);
-                    }
-                    Log.d(sTAG, "Прочитано " + count);
-
-                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                    if (bmp != null) {
-                        bitmap = bmp;
-                        String config = bitmap.getConfig().toString();
-                        Log.d(sTAG, "Конфигурация " + config);
-                    } else {
-                        resetInputStream(sInputStream);
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                    }
-
-                } else {
-                    resetInputStream(sInputStream);
-
-                }
-
-            } catch (Exception e) {
-                try {
-                    resetInputStream(sInputStream);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                Log.d(sTAG, "Ошибка приема фото");
-                Log.d(sTAG, e.getMessage());
-                e.printStackTrace();
-
-                if (bitmap == null) {
-                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                }
-
-            }
-
-            return bitmap;
-        }
-
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-
-            if (result == null) {
-                result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-                touchImageView.setImageBitmap(result);
-                button_make_foto.setClickable(true);
-                button_make_foto.setText(R.string.snapshot);
-            } else {
-                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-                touchImageView.setImageBitmap(result);
-                button_make_foto.setClickable(true);
-                button_make_foto.setText(R.string.snapshot);
-            }
-
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            mProgressBar.setProgress(values[0]);
-        }
-    }
-
-    /*****************************************************************************/
-
-    // Класс отправляет запрос на настройки камере и обрабатывает ответ
+    /**
+     * Класс отправляет запрос на настройки камере и обрабатывает ответ
+     **/
     class ReturnSettings extends AsyncTask<Void, Void, Integer> {
         @Override
         protected void onPreExecute() {
@@ -819,8 +832,6 @@ public class MainActivity extends AppCompatActivity {
             countSettings = 0;
             byte number_cam;
             int status = 0;
-
-
             for (int i = 0; i < 5; i++) {
                 write(returnSettings);
                 try {
@@ -839,19 +850,19 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(sTAG, "заряд камеры " + energy_camera);
                             energy_transmiter = sInputStream.read();
                             Log.d(sTAG, "заряд передатчика " + energy_transmiter);
+                            mProgressBar.setProgress(0);
                             commandSettings = 0;
                             status = 1;
                             break;
+                        } else {
+                            resetInputStream(sInputStream);
                         }
-                    } else {
-                        resetInputStream(sInputStream);
                     }
                 } catch (IOException e) {
                     status = 0;
                     e.printStackTrace();
                 }
             }
-
             return status;
         }
 
@@ -868,9 +879,68 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /***********************************************************/
 
-    class Loop extends AsyncTask<Void, Integer, Bitmap> {
+    /**
+     * Одиночное фото
+     */
+    class DownloadImageTask extends GetFoto {
+
+        @Override
+        protected void onPreExecute() {
+            button_make_foto.setText("Делаю");
+            button_make_foto.setClickable(false);
+        }
+
+        @SuppressLint("NewApi")
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            if (isCancelled()) {
+                return null;
+            }
+            write(makeFoto);
+            return super.doInBackground();
+        }
+
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+
+            if (result == null && error) {
+                result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+            } else if (result != null && !error) {
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+            } else {
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            Log.d(sTAG, "onCancelled()");
+
+            button_make_foto.setText(R.string.snapshot);
+            button_make_foto.setClickable(true);
+            mProgressBar.setProgress(0);
+
+        }
+
+    }
+
+    /**
+     * Непрерывное фото
+     **/
+    class Loop extends GetFoto {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -888,146 +958,7 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
-
             write(makeFoto);
-            byte number_cam;
-            byte command;
-
-            try {
-
-                if (isCancelled()) {
-                    resetInputStream(sInputStream);
-                    return null;
-                }
-
-                number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
-                Log.d(sTAG, "Номер камеры " + number_cam);
-                command = (byte) sInputStream.read();                      // 2. Номер комаенды (команда 11)
-                Log.d(sTAG, "Номер команды " + command);
-                if (command == 12) {
-                    Bitmap bmp;
-                    int raz1;
-                    int raz2;
-                    int raz3;
-                    int size_foto;
-                    raz1 = sInputStream.read();                          // 6. 1-й байт размера
-                    raz2 = sInputStream.read();                          // 7. 2-й байт размера
-                    raz3 = sInputStream.read();                          // 7. 2-й байт размера
-//                    energy_camera = sInputStream.read();                     // 7. Заряд камеры
-//                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
-                    Log.d(sTAG, "Байт 1 размера  " + raz1);
-                    Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    Log.d(sTAG, "Байт 3 размера  " + raz3);
-                    size_foto = raz1 * 65536 + raz2 * 256 + raz3;
-                    Log.d(sTAG, "Размер фото " + size_foto);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    int count = 0;
-                    boolean flagEndOfJpg = true;
-                    int new_temp = 0;
-                    int previous_temp = 0;
-                    mProgressBar.setMax(size_foto);
-
-                    for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
-                        new_temp = sInputStream.read();
-                        byteArrayOutputStream.write(new_temp);
-                        if ((previous_temp == 0xFF) && (new_temp == 0xD9)) {
-                            flagEndOfJpg = false;
-                            Log.d(sTAG, "конец фото ");
-                        }
-                        previous_temp = new_temp;
-                        count++;
-                        publishProgress(count);
-                    }
-                    Log.d(sTAG, "Прочитано " + count);
-                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-
-                    if (bmp != null) {
-                        bitmap = bmp;
-                    } else {
-                        resetInputStream(sInputStream);
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                    }
-
-                } else {
-                    resetInputStream(sInputStream);
-//                    sInputStream.close();
-//                    sInputStream.close();
-//                    sBluetoothSocket.close();
-                    //  bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                }
-
-            } catch (IOException e) {
-                try {
-                    resetInputStream(sInputStream);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                Log.d(sTAG, "Ошибка приема фото");
-                Log.d(sTAG, e.getMessage());
-                e.printStackTrace();
-                //  bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-
-            }
-
-            return bitmap;
-        }
-
-        @Override
-        protected void onCancelled() {
-            Log.d(sTAG, "onCancelled()");
-            try {
-                button_make_foto.setText(R.string.snapshot);
-                button_make_foto.setClickable(true);
-                resetInputStream(sInputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return;
-
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            if (result == null) {
-                Log.d(sTAG, "result == null");
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-                result = getBitmap(bitmap, 3); // Увеличиваем изображение в 3 раза
-                touchImageView.setImageBitmap(result);
-                if (stopFoto) {
-                    loop = new Loop();
-                    loop.execute();
-                    return;
-                } else {
-                    return;
-                }
-            }
-            result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-            touchImageView.setImageBitmap(result);
-            if (stopFoto) {
-                loop = new Loop();
-                loop.execute();
-                return;
-            }
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            mProgressBar.setProgress(values[0]);
-        }
-    }
-
-    //// Цикл фото по выстрелу
-    class LoopShot extends AsyncTask<Void, Integer, Bitmap> {
-        @Override
-        protected void onPreExecute() {
-            // button_make_foto.setText("Отмена");
-        }
-
-        @Override
-        protected Bitmap doInBackground(Void... voids) {
-
 
             if (isCancelled()) {
                 try {
@@ -1037,30 +968,156 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return null;
             }
+
+            return super.doInBackground();
+        }
+
+        @Override
+        protected void onCancelled() {
+            Log.d(sTAG, "onCancelled() loop");
+            button_make_foto.setText(R.string.snapshot);
+                button_make_foto.setClickable(true);
+                stopFoto = false;
+                mProgressBar.setProgress(0);
+
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+
+
+            if (result == null && error) {
+                result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+            } else if (result != null && !error) {
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                button_make_foto.setText(R.string.snapshot);
+                loop=new Loop();
+                loop.execute();
+            } else {
+                button_make_foto.setClickable(true);
+                button_make_foto.setText(R.string.snapshot);
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+            }
+
+
+//            if (result == null && !error) {
+//                Log.d(sTAG, "result == null");
+//                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+//                result = getBitmap(bitmap, 3); // Увеличиваем изображение в 3 раза
+//                touchImageView.setImageBitmap(result);
+//                if (stopFoto) {
+//                    loop = new Loop();
+//                    loop.execute();
+//                    return;
+//                } else {
+//                    return;
+//                }
+//            }
+//            result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+//            touchImageView.setImageBitmap(result);
+//            if (stopFoto) {
+//                loop = new Loop();
+//                loop.execute();
+//                return;
+//            }
+
+        }
+
+    }
+
+    /**
+     * Фото по выстрелу
+     */
+    class LoopShot extends GetFoto {
+        @Override
+        protected void onPreExecute() {
+            // button_make_foto.setText("Отмена");
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+
+            if (isCancelled()) {
+                try {
+                    resetInputStream(sInputStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            return super.doInBackground();
+        }
+
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+
+            if (result == null && error) {
+                Log.d(sTAG, "onPostExecute loopShot Ошибка приема фото"  );
+                result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                button_make_foto.setText(R.string.shoot);
+                touchImageView.setImageBitmap(result);
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+            } else if (result != null && !error) {
+                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+                touchImageView.setImageBitmap(result);
+                loopShot=new LoopShot();
+                loopShot.execute();
+            } 
+
+
+//            if (result != null && !error) {
+//                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
+//                touchImageView.setImageBitmap(result);
+//                loopShot = new LoopShot();
+//                loopShot.execute();
+//                Log.d(sTAG, " LoopShot onPostExecute отработал ");
+//                return;
+//            } else if (!error) {
+//                touchImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.semarobo));
+//                loopShot = new LoopShot();
+//                loopShot.execute();
+//                return;
+//            } else if (error) {
+//                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+//
+//            }
+        }
+
+
+    }
+
+    /**
+     * Родительский класс получения фото
+     */
+    class GetFoto extends AsyncTask<Void, Integer, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
             byte number_cam;
             byte command;
             try {
-
-                if (isCancelled()) {
-                    resetInputStream(sInputStream);
-                    return null;
-                }
-
                 number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
+
                 Log.d(sTAG, "Номер камеры " + number_cam);
                 command = (byte) sInputStream.read();                      // 2. Номер комаенды (команда 11)
                 Log.d(sTAG, "Номер команды " + command);
                 if (command == 12) {
-//
+
                     int raz1;
                     int raz2;
                     int raz3;
                     int size_foto;
                     raz1 = sInputStream.read();                          // 6. 1-й байт размера
                     raz2 = sInputStream.read();                          // 7. 2-й байт размера
-                    raz3 = sInputStream.read();                          // 7. 2-й байт размера
-//                    energy_camera = sInputStream.read();                     // 7. Заряд камеры
-//                    energy_transmiter = sInputStream.read();                 // 8. Заряд передатчика
+                    raz3 = sInputStream.read();                          // 7. 3-й байт размера
                     Log.d(sTAG, "Байт 1 размера  " + raz1);
                     Log.d(sTAG, "Байт 2 размера  " + raz2);
                     Log.d(sTAG, "Байт 3 размера  " + raz3);
@@ -1074,6 +1131,11 @@ public class MainActivity extends AppCompatActivity {
                     mProgressBar.setMax(size_foto);
 
                     for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
+                        if (isCancelled()) {
+                            Log.d(sTAG, "Получение фото отменено, прочитано" + count);
+                            resetInputStream(sInputStream);
+                            return null;
+                        }
                         new_temp = sInputStream.read();
                         byteArrayOutputStream.write(new_temp);
                         if ((previous_temp == 0xFF) && (new_temp == 0xD9)) {
@@ -1088,44 +1150,19 @@ public class MainActivity extends AppCompatActivity {
 
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
                     bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    mProgressBar.setProgress(0);
 
                 } else {
                     resetInputStream(sInputStream);
                 }
 
             } catch (IOException e) {
-                try {
-                    resetInputStream(sInputStream);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                Log.d(sTAG, "Ошибка приема фото");
-                Log.d(sTAG, e.getMessage());
                 e.printStackTrace();
-                //  bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
+                Log.d(sTAG, "Ошибка приема фото ");
+                error = true;
 
             }
-
             return bitmap;
-        }
-
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-
-            if (result != null) {
-                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-                touchImageView.setImageBitmap(result);
-                loopShot = new LoopShot();
-                loopShot.execute();
-                Log.d(sTAG, " LoopShot onPostExecute отработал ");
-                return;
-            } else {
-                touchImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.semarobo));
-                loopShot = new LoopShot();
-                loopShot.execute();
-                return;
-            }
         }
 
         @Override
@@ -1133,7 +1170,66 @@ public class MainActivity extends AppCompatActivity {
             mProgressBar.setProgress(values[0]);
         }
 
+    }
 
+    class SavePhoto extends AsyncTask<Void, Void, Integer> {
+        @Override
+        protected void onPreExecute() {
+            button_save_photo.setClickable(false);
+
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+
+            Date date = new Date();
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy '  ' kk:mm:ss");
+            final String filename = formatter.format(date) + ".jpg";
+            //filename = filename +;
+            String fullpath = getFilesDir() + "/" + "OcoCam";
+            //Создание объекта файла.
+            File fhandle = new File(fullpath, filename);
+
+            try {
+
+                Log.d(sTAG, "...Сохранено.     " + filename);
+                //Если нет директорий в пути, то они будут созданы:
+                if (!fhandle.getParentFile().exists())
+                    fhandle.getParentFile().mkdirs();
+                //Если файл существует, то он будет перезаписан:
+                fhandle.createNewFile();
+                OutputStream fOut = new FileOutputStream(fhandle);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                fOut.flush();
+                fOut.close();
+                // регистрация в фотоальбоме
+                MediaStore.Images.Media.insertImage(getContentResolver(), fhandle.getAbsolutePath(), fhandle.getName(), fhandle.getName());
+
+                Log.d(sTAG, "...Сохранено.     " + fhandle.getName());
+
+                return 1;
+            } catch (IOException e) {
+
+                return 0;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+
+            if (result == 1) {
+                Toast.makeText(getApplicationContext(),
+                        "Сохранено ",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "Не удалость сохранить",
+                        Toast.LENGTH_LONG).show();
+            }
+            button_save_photo.setClickable(true);
+
+        }
     }
 
 

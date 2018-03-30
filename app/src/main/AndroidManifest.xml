@@ -36,7 +36,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.artem.menupreferense.MainActivity" />
         </activity>
-        <activity android:name=".FirstActivity">
+        <activity android:name=".FirstActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
