@@ -2,6 +2,7 @@ package com.example.artem.menupreferense;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     TouchImageView touchImageView;
     ReturnSettings returnSetting;
     BTConnectThread btConnectThread;
+    ProgressDialog progressDialog;
 
 
     DownloadImageTask downloadImageTask;
@@ -154,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (intent.getAction()) {
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                    Log.d(sTAG, "ACTION_ACL_DISCONNECTED ");
+                    Log.e(sTAG, "ACTION_ACL_DISCONNECTED ");
                     Toast.makeText(context, "Потеряна связь с устройством", Toast.LENGTH_LONG).show();
                     finish();
                     break;
@@ -203,58 +206,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Метод сохранения картинки
-//    public void savePicture() {
-//
-//        if (bitmap != null) {
-//
-//            cancelFotos();
-//
-//
-//            Date date = new Date();
-//            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy '  ' kk:mm:ss");
-//            final String filename = formatter.format(date) + ".jpg";
-//            //filename = filename +;
-//            String fullpath = getFilesDir() + "/" + "OcoCam";
-//            //Создание объекта файла.
-//            File fhandle = new File(fullpath, filename);
-//
-//
-//            try {
-//
-//                Log.d(sTAG, "...Сохранено.     " + filename);
-//                //Если нет директорий в пути, то они будут созданы:
-//                if (!fhandle.getParentFile().exists())
-//                    fhandle.getParentFile().mkdirs();
-//                //Если файл существует, то он будет перезаписан:
-//                fhandle.createNewFile();
-//                OutputStream fOut = new FileOutputStream(fhandle);
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-//                fOut.flush();
-//                fOut.close();
-//                // регистрация в фотоальбоме
-//                MediaStore.Images.Media.insertImage(getContentResolver(), fhandle.getAbsolutePath(), fhandle.getName(), fhandle.getName());
-//
-//                Log.d(sTAG, "...Сохранено.     " + fhandle.getName());
-//
-//
-//                Toast.makeText(getApplicationContext(),
-//                        "Сохранено ",
-//                        Toast.LENGTH_SHORT).show();
-//            } catch (IOException e) {
-//                Toast.makeText(getApplicationContext(),
-//                        "Не удалость сохранить",
-//                        Toast.LENGTH_LONG).show();
-//            }
-//
-//        } else {
-//            Toast.makeText(getApplicationContext(),
-//                    "Отсутствует фото для сохранения",
-//                    Toast.LENGTH_LONG).show();
-//        }
-//
-//    }
-
 
     // Метод увеличения размера картинки
     @SuppressLint("NewApi")
@@ -275,9 +226,9 @@ public class MainActivity extends AppCompatActivity {
     public static void write(byte[] b) {
         try {
             sOutputStream.write(b);
-            Log.d(sTAG, "...Данные отправлены. " + new String(b));
+            Log.e(sTAG, "...Данные отправлены. " + new String(b));
         } catch (IOException e) {
-            Log.d(sTAG, "...Ошибка отправки данных: " + e.getMessage() + "...");
+            Log.e(sTAG, "...Ошибка отправки данных: " + e.getMessage() + "...");
         }
     }
 
@@ -317,6 +268,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         button_make_foto = (Button) fragment.getView().findViewById(R.id.buttonMakephoto);
+        button_make_foto.setClickable(false);
+
         button_save_photo = (Button) findViewById(R.id.buttonSavePhoto);
         button_save_photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
                         mSavePhoto = new SavePhoto();
                         mSavePhoto.execute();
                     } else if (mSavePhoto.getStatus() == AsyncTask.Status.FINISHED) {
-                        Log.d(sTAG, "mSavePhoto.getStatus() == AsyncTask.Status.FINISHED");
+                        Log.e(sTAG, "mSavePhoto.getStatus() == AsyncTask.Status.FINISHED");
                         mSavePhoto = new SavePhoto();
                         mSavePhoto.execute();
                     }
@@ -346,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mProgressBar = fragment.getView().findViewById(R.id.progressBar);
+        mProgressBar = findViewById(R.id.progressBar);
 
     }
 
@@ -356,45 +309,45 @@ public class MainActivity extends AppCompatActivity {
     private void getSettings() {
         // Частота передачи
         String frequencytTansmission = sharedPreferences.getString(TRANSMISSION_FREGENCY, "111");
-        Log.d(sTAG, "Частота передачи =  " + frequencytTansmission);
+        Log.e(sTAG, "Частота передачи =  " + frequencytTansmission);
         this.frequencytTansmission = Integer.parseInt(frequencytTansmission);
 
         // Мощност передатчика
         String powerTransmitter = sharedPreferences.getString(TRANSMITTER_POWER, "121");
-        Log.d(sTAG, "мощность передатчика =  " + powerTransmitter);
+        Log.e(sTAG, "мощность передатчика =  " + powerTransmitter);
         this.powerTransmitter = Integer.parseInt(powerTransmitter);
 
         // Разрешение фото
         String resolution = sharedPreferences.getString(RESOLUTION_CAMFOTO, "6");
-        Log.d(sTAG, "Разрешение фото =  " + resolution);
+        Log.e(sTAG, "Разрешение фото =  " + resolution);
         this.resolution = Integer.parseInt(resolution);
 
         // Качество фото
         String qualityFoto = sharedPreferences.getString(QUALITY_CAMFOTO, "201");
-        Log.d(sTAG, "Качество фото =  " + qualityFoto);
+        Log.e(sTAG, "Качество фото =  " + qualityFoto);
         this.qualityFoto = Integer.parseInt(qualityFoto);
 
         // ИК подсветка
         boolean infratedIllumination = sharedPreferences.getBoolean(INFRATED_ILLUMINATION, false);
         this.infratedIllumination = infratedIllumination ? 1 : 0;
-        Log.d(sTAG, "ИК подсветка  =  " + this.infratedIllumination);
+        Log.e(sTAG, "ИК подсветка  =  " + this.infratedIllumination);
 
         // Фото по выстрелу
         boolean shootingFoto = sharedPreferences.getBoolean(SHOOTING_FOTO, false);
-        Log.d(sTAG, "Фото по выстрелу  =  " + shootingFoto);
+        Log.e(sTAG, "Фото по выстрелу  =  " + shootingFoto);
         // Задержка
         if (shootingFoto) {
             String delay = sharedPreferences.getString(DELAY, "3");
             this.shootingFoto = Integer.parseInt(delay);
-            Log.d(sTAG, "Задержка  =  " + this.shootingFoto);
+            Log.e(sTAG, "Задержка  =  " + this.shootingFoto);
             String sensitivity = sharedPreferences.getString(SENSITIVITY, "3");
             this.sensitivity = Integer.parseInt(sensitivity);
-            Log.d(sTAG, "Чувствительность  =  " + this.sensitivity);
+            Log.e(sTAG, "Чувствительность  =  " + this.sensitivity);
         } else {
             this.shootingFoto = 0;
             this.sensitivity = 0;
-            Log.d(sTAG, "Задержка  =  " + this.shootingFoto);
-            Log.d(sTAG, "Чувствительность  =  " + this.shootingFoto);
+            Log.e(sTAG, "Задержка  =  " + this.shootingFoto);
+            Log.e(sTAG, "Чувствительность  =  " + this.shootingFoto);
         }
 
         // Бипер
@@ -448,42 +401,18 @@ public class MainActivity extends AppCompatActivity {
                         if (loop == null) {
                             loop = new Loop();
                             loop.execute();
-                            Log.d(sTAG, "loop = new Loop();");
-                            Log.d(sTAG, "Зпускаем Loop ");
+                            Log.e(sTAG, "loop = new Loop();");
+                            Log.e(sTAG, "Зпускаем Loop ");
                         } else if (loop.getStatus() == AsyncTask.Status.FINISHED) {
                             loop = new Loop();
                             loop.execute();
-                            Log.d(sTAG, "loop.getStatus() == AsyncTask.Status.FINISHED");
-                            Log.d(sTAG, "Зпускаем Loop ");
+                            Log.e(sTAG, "loop.getStatus() == AsyncTask.Status.FINISHED");
+                            Log.e(sTAG, "Зпускаем Loop ");
                         } else if ((loop.getStatus() == AsyncTask.Status.RUNNING || loop.getStatus() == AsyncTask.Status.RUNNING) && !loop.isCancelled()) {
                             loop.cancel(true);
-                            Log.d(sTAG, "loop.cancel(true);");
+                            Log.e(sTAG, "loop.cancel(true);");
                         }
 
-
-//                        if (stopFoto) {
-//                            if (loop.isCancelled()) {
-//                                Log.d(sTAG, "Loop уже был отменен");
-//                            } else {
-//                                stopFoto = false;
-//                                loop.cancel(true); // отменяем Loop
-//                                button_make_foto.setText("Отменяю");
-//                                button_make_foto.setClickable(false);
-//                                Log.d(sTAG, "Отменяем Loop ");
-//                            }
-//
-//                        } else {
-//                            stopFoto = true;
-//                            if (loop == null) {
-//                                loop = new Loop();
-//                                loop.execute();
-//                                Log.d(sTAG, "Зпускаем Loop ");
-//                            } else if (loop.getStatus() == AsyncTask.Status.FINISHED) {
-//                                loop = new Loop();
-//                                loop.execute();
-//                                Log.d(sTAG, "Зпускаем Loop ");
-//                            }
-//                        }
 
                     }
                 });
@@ -512,11 +441,11 @@ public class MainActivity extends AppCompatActivity {
             if (loopShot == null) {
                 loopShot = new LoopShot();
                 loopShot.execute();
-                Log.d(sTAG, "Зпускаем Loop по выстрелу ");
+                Log.e(sTAG, "Зпускаем Loop по выстрелу ");
             } else if (loopShot.getStatus() == AsyncTask.Status.FINISHED) {
                 loopShot = new LoopShot();
                 loopShot.execute();
-                Log.d(sTAG, "Зпускаем Loop по выстрелу loopShot.getStatus() == AsyncTask.Status.FINISHED ");
+                Log.e(sTAG, "Зпускаем Loop по выстрелу loopShot.getStatus() == AsyncTask.Status.FINISHED ");
             }
 
 
@@ -531,11 +460,11 @@ public class MainActivity extends AppCompatActivity {
 
         int n = 0;
         do {
-            TimeUnit.SECONDS.toMillis(1000);
+            // TimeUnit.SECONDS.toMillis(1000);
             n = is.available();
-            Log.d(sTAG, "возможно прочитать  " + n + " байт");
+            Log.e(sTAG, "возможно прочитать  " + n + " байт");
             long l = is.skip(n);
-            Log.d(sTAG, "прочитано  " + l + " байт");
+            Log.e(sTAG, "прочитано  " + l + " байт");
         } while (n > 0);
     }
 
@@ -553,13 +482,13 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == toolbar.getMenu().findItem(R.id.action_settings).getItemId()) {
 
             if (loop != null) {
-                Log.d(sTAG, "onOptionsItemSelected");
+                Log.e(sTAG, "onOptionsItemSelected");
                 loop.cancel(true);
-            //    sRestartGlobalVeriable();
+                sRestartGlobalVeriable();
             }
             if (loopShot != null) {
                 loopShot.cancel(true);
-             //   sRestartGlobalVeriable();
+                sRestartGlobalVeriable();
             }
 
 
@@ -618,120 +547,130 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Класс соединения Bluetooth в отдельном потоке
      */
-    public class BTConnectThread extends AsyncTask<Void, Void, Void> {
-
+    public class BTConnectThread extends AsyncTask<Void, Void, Integer> {
+        Integer result;
 
         public void seveAdress(String adressBluetooth) {
+            // Сохраняем адресс устройства BLUETOOTH
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(GlobalVeriable.BLUETOOTH_KEY, adressBluetooth);
             editor.commit();
-            Log.d(sTAG, "Адресс сохранен  " + adressBluetooth);
+            Log.e(sTAG, "Адресс сохранен  " + adressBluetooth);
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            button_make_foto.setEnabled(false);
+             showProgress();
+
         }
 
         @SuppressLint("NewApi")
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
+
             if (sBluetoothSocket != null) {
-                Log.d(sTAG, "BluetoothSocket ! = null ");
+                Log.e(sTAG, "BluetoothSocket ! = null ");
                 // Toast.makeText(getApplicationContext(), "Соединение установлено",  Toast.LENGTH_SHORT).show();
 
                 try {
-                    if(sBluetoothSocket.isConnected()){
-                        Log.d(sTAG, "sBluetoothSocket.isConnected() == true ");
-                    sInputStream = sBluetoothSocket.getInputStream();
-                    sOutputStream = sBluetoothSocket.getOutputStream();
-                    } else  {
-                        Log.d(sTAG, "sBluetoothSocket.isConnected() == false ");
-                        sBluetoothSocket.connect();
+                    if (sBluetoothSocket.isConnected()) {
+                        Log.e(sTAG, "sBluetoothSocket.isConnected() == true ");
                         sInputStream = sBluetoothSocket.getInputStream();
                         sOutputStream = sBluetoothSocket.getOutputStream();
+                        result = 1;
+
+                    } else {
+                        Log.e(sTAG, "sBluetoothSocket.isConnected() == false ");
+                        sBluetoothSocket.connect();
+                        Log.e(sTAG, "sBluetoothSocket.isConnected() = " + sBluetoothSocket.isConnected());
+                        sInputStream = sBluetoothSocket.getInputStream();
+                        sOutputStream = sBluetoothSocket.getOutputStream();
+                        result = 1;
+
                     }
 
                 } catch (IOException e) {
-                    Log.d(sTAG, "Не удается создать потоки");
+                    Log.e(sTAG, "Не удается создать потоки");
                     e.printStackTrace();
                 }
 
             } else {
 
 
-                Log.d(sTAG, "BluetoothSocket = null ");
-                Log.d(sTAG, "Bluetooth adress " + adressBluetooth);
+                Log.e(sTAG, "BluetoothSocket = null ");
+                Log.e(sTAG, "Bluetooth adress " + adressBluetooth);
 
-                // Подключаемя к удаленному устройству по заданному адрессу
+                // Подключаемcя к удаленному устройству по заданному адрессу
                 // Используем статическую переменную mbluetoothAdapter
                 sBluetoothDevice = mbluetoothAdapter.getRemoteDevice(adressBluetooth);
 
 
                 try {
-                    // Создаем сокет подключения
-
                     sBluetoothSocket = sBluetoothDevice.createRfcommSocketToServiceRecord(myUUID);
-
-
                     Log.d(sTAG, "Создаем сокет");
-
-
                     try {
-
-
                         sBluetoothSocket.connect();
-
-
-                        Log.d(sTAG, "sBluetoothSocket =  " + sBluetoothSocket.toString());
-                        Log.d(sTAG, "sBluetoothSocket.connect()  =  " + sBluetoothSocket.isConnected());
+                        Log.e(sTAG, "sBluetoothSocket =  " + sBluetoothSocket.toString());
+                        Log.e(sTAG, "sBluetoothSocket.connect()  =  " + sBluetoothSocket.isConnected());
 
 
                         if (sBluetoothSocket.isConnected()) {
-                            Log.d(sTAG, "Сокет подключен");
+                            Log.e(sTAG, "Сокет подключен");
                             try {
 
                                 sInputStream = sBluetoothSocket.getInputStream();
                                 sOutputStream = sBluetoothSocket.getOutputStream();
 
                             } catch (IOException e) {
-                                Log.d(sTAG, "Не удается создать потоки");
+                                Log.e(sTAG, "Не удается создать потоки");
                                 e.printStackTrace();
                                 finish();
                             }
 
                             seveAdress(adressBluetooth);
-                            Log.d(sTAG, "...Соединение установлено и готово к передачи данных...");
-
+                            Log.e(sTAG, "...Соединение установлено и готово к передачи данных...");
 
                             /** Здесь необходимо отправить настройки приложения*/
-
-                            if (returnSetting == null) {
-                                Log.d(sTAG, "Создали returnSetting");
-                                returnSetting = new ReturnSettings();
-                                returnSetting.execute();
-                            } else if (returnSetting.getStatus() == AsyncTask.Status.FINISHED) {
-                                Log.d(sTAG, "returnSetting.getStatus() == AsyncTask.Status.FINISHED");
-                                returnSetting = new ReturnSettings();
-                                returnSetting.execute();
-                            }
-
-
+                            result = 1;
                         }
 
-                        Log.d(sTAG, "Вышли их try");
-
-
                     } catch (IOException e) {
-                        Log.d(sTAG, "Не удалось подключиться к socket");
+                        Log.e(sTAG, "Не удалось подключиться к socket");
                         e.printStackTrace();
                         finish();
                     }
 
                 } catch (IOException e) {
-                    Log.d(sTAG, "Не удалось создать socket подключения");
+                    Log.e(sTAG, "Не удалось создать socket подключения");
                     e.printStackTrace();
                     finish();
                 }
 
             }
+            return result;
+        }
 
-            return null;
+        @Override
+        protected void onPostExecute(Integer result) {
+            if (result != null) {
+                returnSettingsMethod();
+
+            }
+
+        }
+    }
+
+    public void returnSettingsMethod() {
+        if (returnSetting == null) {
+            Log.e(sTAG, "Создали returnSetting");
+            returnSetting = new ReturnSettings();
+            returnSetting.execute();
+        } else if (returnSetting.getStatus() == AsyncTask.Status.FINISHED) {
+            Log.e(sTAG, "returnSetting.getStatus() == AsyncTask.Status.FINISHED");
+            returnSetting = new ReturnSettings();
+            returnSetting.execute();
         }
     }
 
@@ -740,28 +679,35 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (exit) {
             super.finish();
-            Log.d(sTAG, "Сработал метод finish");
+            Log.e(sTAG, "Сработал метод finish");
         }
-        Log.d(sTAG, "onResume");
+        Log.e(sTAG, "onResume");
     }
 
     @Override
     protected void onStart() {
+
         if (mbluetoothAdapter.isEnabled()) {
-            Log.d(sTAG, "onStart");
-            Log.d(sTAG, "Регистрируем приемник");
+            Log.e(sTAG, "onStart");
+
+            Log.e(sTAG, "Регистрируем приемник");
             IntentFilter filter = new IntentFilter();
             filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
             registerReceiver(mBroadCastReceiver4, filter);
+
+            // Возварщаем последние настройки
             getSettings();
+            // Устанавливаем цвет кнопки
+            //    button_make_foto.setBackgroundColor(getResources().getColor(R.color.green));
             if (btConnectThread == null) {
                 btConnectThread = new BTConnectThread();
-                btConnectThread.execute();
+                btConnectThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
             } else if (btConnectThread.getStatus() == AsyncTask.Status.FINISHED) {
                 Log.d(sTAG, "btConnectThread.getStatus() == AsyncTask.Status.FINISHED");
                 btConnectThread = new BTConnectThread();
-                btConnectThread.execute();
+                btConnectThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
             }
+
             error = false;
         } else {
             exit = true;
@@ -772,67 +718,57 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         cancelFotos();
+        sRestartGlobalVeriable();
         unregisterReceiver(mBroadCastReceiver4);
         error = true;
-      //  sRestartGlobalVeriable();
-        Log.d(sTAG, "onStop");
+
+        Log.e(sTAG, "onStop");
         super.onStop();
-    }
-
-    /**
-     * Отмена фотографирования
-     */
-    public void cancelFotos() {
-
-        if (downloadImageTask != null) {
-            downloadImageTask.cancel(true);
-        }
-        if (loop != null) {
-            loop.cancel(true);
-        }
-        if (loopShot != null) {
-            loopShot.cancel(true);
-        }
-        mProgressBar.setProgress(0);
     }
 
 
     @Override
     protected void onPause() {
-        Log.d(sTAG, "onPause");
+        Log.e(sTAG, "onPause");
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(sTAG, "onDestroy");
+//        Log.d(sTAG, "onDestroy");
+//        error = true;
+//        sRestartGlobalVeriable();
+        Log.e(sTAG, "onStop");
         super.onDestroy();
     }
 
     @Override
     protected void onRestart() {
-        Log.d(sTAG, "onRestart");
+        Log.e(sTAG, "onRestart");
         super.onRestart();
     }
 
 
     /**
      * Класс отправляет запрос на настройки камере и обрабатывает ответ
-     **/
+     */
     class ReturnSettings extends AsyncTask<Void, Void, Integer> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            button_make_foto.setClickable(false);
+            button_make_foto.setEnabled(false);
+            //   button_make_foto.setClickable(false);
+
 
         }
 
         @Override
         protected Integer doInBackground(Void... voids) {
+
             countSettings = 0;
             byte number_cam;
             int status = 0;
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 7; i++) {
                 write(returnSettings);
                 try {
                     TimeUnit.SECONDS.sleep(1);
@@ -842,9 +778,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     if (sInputStream.available() > 0) {
                         number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
-                        Log.d(sTAG, "Номер камеры " + number_cam);
+                        Log.e(sTAG, "Номер камеры " + number_cam);
                         commandSettings = (byte) sInputStream.read();                      // 2. Номер команды (команда 11)
-                        Log.d(sTAG, "Номер команды " + commandSettings);
+                        Log.e(sTAG, "Номер команды " + commandSettings);
                         if (commandSettings == numberCommandSettings) {
                             energy_camera = sInputStream.read();
                             Log.d(sTAG, "заряд камеры " + energy_camera);
@@ -855,8 +791,24 @@ public class MainActivity extends AppCompatActivity {
                             status = 1;
                             break;
                         } else {
+                            try {
+                                TimeUnit.SECONDS.sleep(1);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            long k = sInputStream.skip(100000);
+                            Log.e(sTAG, "Пропущено  " + k);
                             resetInputStream(sInputStream);
+                            continue;
                         }
+                    } else {
+
+                        continue;
+//                        try {
+//                            TimeUnit.SECONDS.sleep(1);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
                     }
                 } catch (IOException e) {
                     status = 0;
@@ -870,15 +822,17 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Integer i) {
             if (i == 1) {
                 setPower(energy_camera, energy_transmiter);
+                button_make_foto.setEnabled(true);
                 button_make_foto.setClickable(true);
+                //   button_make_foto.setBackgroundColor(getResources().getColor(R.color.backgroundButton));
                 setMethod();
 
             } else {
                 setPowerNull();
             }
+            hideProgress();
         }
     }
-
 
     /**
      * Одиночное фото
@@ -911,7 +865,7 @@ public class MainActivity extends AppCompatActivity {
                 touchImageView.setImageBitmap(result);
                 button_make_foto.setClickable(true);
                 button_make_foto.setText(R.string.snapshot);
-                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото 1", Toast.LENGTH_SHORT).show();
             } else if (result != null && !error) {
                 result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
                 touchImageView.setImageBitmap(result);
@@ -920,8 +874,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 button_make_foto.setClickable(true);
                 button_make_foto.setText(R.string.snapshot);
-                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото 2", Toast.LENGTH_SHORT).show();
             }
+            super.onPostExecute(result);
 
         }
 
@@ -939,7 +894,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Непрерывное фото
-     **/
+     */
     class Loop extends GetFoto {
         @Override
         protected void onPreExecute() {
@@ -974,17 +929,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onCancelled() {
-            Log.d(sTAG, "onCancelled() loop");
+            Log.e(sTAG, "onCancelled() loop");
             button_make_foto.setText(R.string.snapshot);
-                button_make_foto.setClickable(true);
-                stopFoto = false;
-                mProgressBar.setProgress(0);
+            button_make_foto.setClickable(true);
+            stopFoto = false;
+            mProgressBar.setProgress(0);
 
         }
 
         @Override
         protected void onPostExecute(Bitmap result) {
-
 
             if (result == null && error) {
                 result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
@@ -992,40 +946,19 @@ public class MainActivity extends AppCompatActivity {
                 touchImageView.setImageBitmap(result);
                 button_make_foto.setClickable(true);
                 button_make_foto.setText(R.string.snapshot);
-                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Ошибка приема фото 1", Toast.LENGTH_SHORT).show();
             } else if (result != null && !error) {
                 result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
                 touchImageView.setImageBitmap(result);
                 button_make_foto.setText(R.string.snapshot);
-                loop=new Loop();
+                loop = new Loop();
                 loop.execute();
             } else {
                 button_make_foto.setClickable(true);
                 button_make_foto.setText(R.string.snapshot);
-                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Ошибка приема  2", Toast.LENGTH_SHORT).show();
             }
-
-
-//            if (result == null && !error) {
-//                Log.d(sTAG, "result == null");
-//                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
-//                result = getBitmap(bitmap, 3); // Увеличиваем изображение в 3 раза
-//                touchImageView.setImageBitmap(result);
-//                if (stopFoto) {
-//                    loop = new Loop();
-//                    loop.execute();
-//                    return;
-//                } else {
-//                    return;
-//                }
-//            }
-//            result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-//            touchImageView.setImageBitmap(result);
-//            if (stopFoto) {
-//                loop = new Loop();
-//                loop.execute();
-//                return;
-//            }
+            super.onPostExecute(result);
 
         }
 
@@ -1060,7 +993,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap result) {
 
             if (result == null && error) {
-                Log.d(sTAG, "onPostExecute loopShot Ошибка приема фото"  );
+                Log.e(sTAG, "onPostExecute loopShot Ошибка приема фото");
                 result = BitmapFactory.decodeResource(getResources(), R.drawable.semarobo);
                 result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
                 button_make_foto.setText(R.string.shoot);
@@ -1069,27 +1002,11 @@ public class MainActivity extends AppCompatActivity {
             } else if (result != null && !error) {
                 result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
                 touchImageView.setImageBitmap(result);
-                loopShot=new LoopShot();
+                loopShot = new LoopShot();
                 loopShot.execute();
-            } 
+            }
 
-
-//            if (result != null && !error) {
-//                result = getBitmap(result, 3); // Увеличиваем изображение в 3 раза
-//                touchImageView.setImageBitmap(result);
-//                loopShot = new LoopShot();
-//                loopShot.execute();
-//                Log.d(sTAG, " LoopShot onPostExecute отработал ");
-//                return;
-//            } else if (!error) {
-//                touchImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.semarobo));
-//                loopShot = new LoopShot();
-//                loopShot.execute();
-//                return;
-//            } else if (error) {
-//                Toast.makeText(getApplicationContext(), "Ошибка приема фото", Toast.LENGTH_SHORT).show();
-//
-//            }
+            super.onPostExecute(result);
         }
 
 
@@ -1099,30 +1016,59 @@ public class MainActivity extends AppCompatActivity {
      * Родительский класс получения фото
      */
     class GetFoto extends AsyncTask<Void, Integer, Bitmap> {
+
+        int number_cam = -1;
+
+        class Reset extends TimerTask {
+            @Override
+            public void run() {
+                if (number_cam == -1) {
+                    Log.e(sTAG, " number_cam == -1 ");
+                    //   cancelFotos();
+                    sRestartGlobalVeriable();
+                    error = true;
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    btConnect();
+                    error = false;
+
+                }
+            }
+        }
+
+
         @Override
         protected Bitmap doInBackground(Void... voids) {
-            byte number_cam;
-            byte command;
-            try {
-                number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
 
-                Log.d(sTAG, "Номер камеры " + number_cam);
-                command = (byte) sInputStream.read();                      // 2. Номер комаенды (команда 11)
-                Log.d(sTAG, "Номер команды " + command);
+            int command;
+            int size_foto;
+            long skipByte;
+            try {
+                // Timer t = new Timer();
+                //  Reset reset = new Reset();
+                //   t.schedule(reset,1000);
+                number_cam = sInputStream.read();                   // 1. Номер камеры
+                Log.e(sTAG, "Номер камеры " + number_cam);
+                command = sInputStream.read();                      // 2. Номер комаенды (команда 11)
+                Log.e(sTAG, "Номер команды " + command);
                 if (command == 12) {
 
                     int raz1;
                     int raz2;
                     int raz3;
-                    int size_foto;
+
                     raz1 = sInputStream.read();                          // 6. 1-й байт размера
                     raz2 = sInputStream.read();                          // 7. 2-й байт размера
                     raz3 = sInputStream.read();                          // 7. 3-й байт размера
-                    Log.d(sTAG, "Байт 1 размера  " + raz1);
-                    Log.d(sTAG, "Байт 2 размера  " + raz2);
-                    Log.d(sTAG, "Байт 3 размера  " + raz3);
+                    Log.e(sTAG, "Байт 1 размера  " + raz1);
+                    Log.e(sTAG, "Байт 2 размера  " + raz2);
+                    Log.e(sTAG, "Байт 3 размера  " + raz3);
                     size_foto = raz1 * 65536 + raz2 * 256 + raz3;
-                    Log.d(sTAG, "Размер фото " + size_foto);
+                    Log.e(sTAG, "Размер фото " + size_foto);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int count = 0;
                     boolean flagEndOfJpg = true;
@@ -1132,7 +1078,11 @@ public class MainActivity extends AppCompatActivity {
 
                     for (int i = 0; (i < size_foto) && (flagEndOfJpg); i++) {
                         if (isCancelled()) {
+                            skipByte = size_foto - count;
                             Log.d(sTAG, "Получение фото отменено, прочитано" + count);
+                            long skipsInput = sInputStream.skip(skipByte);
+                            Log.e(sTAG, "пропускаем " + skipByte + "  Байт");
+                            Log.e(sTAG, "пропустили " + skipsInput + "  Байт");
                             resetInputStream(sInputStream);
                             return null;
                         }
@@ -1140,17 +1090,16 @@ public class MainActivity extends AppCompatActivity {
                         byteArrayOutputStream.write(new_temp);
                         if ((previous_temp == 0xFF) && (new_temp == 0xD9)) {
                             flagEndOfJpg = false;
-                            Log.d(sTAG, "конец фото ");
+                            Log.e(sTAG, "конец фото ");
                         }
                         previous_temp = new_temp;
                         count++;
                         publishProgress(count);
                     }
-                    Log.d(sTAG, "Прочитано " + count);
+                    Log.e(sTAG, "Прочитано " + count);
 
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
                     bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                    mProgressBar.setProgress(0);
 
                 } else {
                     resetInputStream(sInputStream);
@@ -1158,7 +1107,8 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d(sTAG, "Ошибка приема фото ");
+                Log.e(sTAG, "Ошибка приема фото ");
+
                 error = true;
 
             }
@@ -1170,8 +1120,17 @@ public class MainActivity extends AppCompatActivity {
             mProgressBar.setProgress(values[0]);
         }
 
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            mProgressBar.setProgress(0);
+        }
+
+
     }
 
+    /**
+     * Сохронение фотографии
+     */
     class SavePhoto extends AsyncTask<Void, Void, Integer> {
         @Override
         protected void onPreExecute() {
@@ -1232,6 +1191,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Отмена фотографирования
+     */
+    public void cancelFotos() {
+
+        if (downloadImageTask != null) {
+            downloadImageTask.cancel(true);
+        }
+        if (loop != null) {
+            loop.cancel(true);
+        }
+        if (loopShot != null) {
+            loopShot.cancel(true);
+        }
+        mProgressBar.setProgress(0);
+    }
+
+    /**
+     * Подключение BT
+     */
+    private void btConnect() {
+        if (btConnectThread == null) {
+            btConnectThread = new BTConnectThread();
+            btConnectThread.execute();
+        } else if (btConnectThread.getStatus() == AsyncTask.Status.FINISHED) {
+            Log.d(sTAG, "btConnectThread.getStatus() == AsyncTask.Status.FINISHED");
+            btConnectThread = new BTConnectThread();
+            btConnectThread.execute();
+        }
+    }
+
+    public void showProgress() {
+        progressDialog = ProgressDialog.show(this, "", getString(R.string.please_wait));
+    }
+
+    public void hideProgress() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+    }
 
 }
 

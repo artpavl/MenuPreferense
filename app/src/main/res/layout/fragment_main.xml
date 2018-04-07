@@ -19,14 +19,14 @@
             android:id="@+id/buttonMakephoto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:drawableBottom="@drawable/ic_photo_camera_black_24dp"
+            android:drawableBottom="@drawable/ic_photo_camera_black_48dp"
             android:text="@string/snapshot" />
 
         <Button
             android:id="@+id/buttonSavePhoto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableBottom="@drawable/ic_save_black_24dp"
+            android:drawableBottom="@drawable/ic_save_black_48dp"
             android:text="@string/savePhoto" />
     </LinearLayout>
 

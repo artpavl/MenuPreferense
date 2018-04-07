@@ -73,6 +73,7 @@
     <string name="savePhoto">Сохранить</string>
     <string name="find_gadget">Найденные устройства</string>
     <string name="connect">Подключение</string>
+    <string name="please_wait">Пожалуйста подождите</string>
 
 
 </resources>
