@@ -9,49 +9,18 @@
     tools:showIn="@layout/activity_main">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="4dp">
 
-        <Button
-            android:id="@+id/buttonMakephoto"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_margin="5dp"
-            android:background="@drawable/button_round"
-            android:drawable="@drawable/button_foto_selector"
-            android:drawableTop="@drawable/button_foto_selector"
-            android:padding="11dp" />
-
-        <Button
-            android:id="@+id/buttonSavePhoto"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="bottom|center"
-            android:layout_margin="5dp"
-            android:background="@drawable/button_round"
-            android:drawableBottom="@drawable/button_save_selector"
-            android:gravity="center_vertical|center_horizontal|center"
-            android:padding="11dp" />
-
-
-    </LinearLayout>
-
-    <LinearLayout
-
+        android:id="@+id/layoutImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <!--<ProgressBar-->
-            <!--android:id="@+id/progressBar"-->
-            <!--style="?android:attr/progressBarStyleHorizontal"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="3dp"-->
-            <!--android:theme="@style/ProgressBar" />-->
+        <!--android:id="@+id/progressBar"-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="3dp"-->
+        <!--android:theme="@style/ProgressBar" />-->
 
         <com.example.artem.menupreferense.TouchImageView
             android:id="@+id/imageView"

@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +30,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
     ReturnSettings returnSetting;
     BTConnectThread btConnectThread;
     ProgressDialog progressDialog;
+    TabLayout tabLayout;
+    TabHost tabHost;
 
 
     DownloadImageTask downloadImageTask;
@@ -112,11 +116,14 @@ public class MainActivity extends AppCompatActivity {
     Context mContext;
     static Bitmap bitmap;
     boolean error;
+
+    int quantity_cam;
+    int number_cam;
     int energy_camera;
     int energy_transmiter;
 
     // данные для отправки камере
-    int numberCam = 1; // номер камеры 0
+    int mNumberCam = 0; // номер камеры 0
     static final int numberCommandSettings = 9; // номер каманды 1
     int frequencytTansmission; // частота передачи 2
     int powerTransmitter; // мощность передатчика 3
@@ -159,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                     Log.e(sTAG, "ACTION_ACL_DISCONNECTED ");
                     Toast.makeText(context, "Потеряна связь с устройством", Toast.LENGTH_LONG).show();
+
                     finish();
                     break;
             }
@@ -267,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
         //   nameBluetooth = getIntent().getStringExtra("Name");
 
 
-        button_make_foto = (Button) fragment.getView().findViewById(R.id.buttonMakephoto);
+        button_make_foto = (Button) findViewById(R.id.buttonMakephoto);
         button_make_foto.setClickable(false);
 
         button_save_photo = (Button) findViewById(R.id.buttonSavePhoto);
@@ -301,6 +309,55 @@ public class MainActivity extends AppCompatActivity {
 
         mProgressBar = findViewById(R.id.progressBar);
 
+        tabLayout = findViewById(R.id.tabLayout);
+
+
+    }
+
+    public void setNumberCamera(int quantityCam, int numberCam) {
+        tabLayout.removeAllTabs(); // Удаляем все табы
+        tabLayout.clearOnTabSelectedListeners(); // Удаляем ранее созданные слушатели
+        for (int i = 0; i < quantityCam; i++) {
+            tabLayout.addTab(tabLayout.newTab().setText("К " + String.valueOf(i + 1)));
+        }
+        tabLayout.getTabAt(numberCam - 1).select(); //активная вкладка с номером камеры
+
+        tabLayout.setTabTextColors(getResources().getColor(R.color.green), getResources().getColor(R.color.red));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                mNumberCam = tab.getPosition() + 1;
+                getSettings();
+
+                cancelFotos();
+                sRestartGlobalVeriable();
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                btConnect();
+
+                Toast.makeText(getApplicationContext(),
+                        String.valueOf(tab.getPosition() + 1),
+                        Toast.LENGTH_SHORT).show();
+
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     /**
@@ -357,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
         reserve = 0;
 
         returnSettings = new byte[]{
-                (byte) numberCam, // 0
+                (byte) mNumberCam, // 0
                 (byte) numberCommandSettings, //1
                 (byte) this.frequencytTansmission, //2
                 (byte) this.powerTransmitter, //3
@@ -481,15 +538,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (item.getItemId() == toolbar.getMenu().findItem(R.id.action_settings).getItemId()) {
 
-            if (loop != null) {
-                Log.e(sTAG, "onOptionsItemSelected");
-                loop.cancel(true);
-                sRestartGlobalVeriable();
-            }
-            if (loopShot != null) {
-                loopShot.cancel(true);
-                sRestartGlobalVeriable();
-            }
+            cancelFotos();
+            sRestartGlobalVeriable();
 
 
             Intent preferencesIntent = new Intent(this, SettingsActivity.class);
@@ -548,6 +598,8 @@ public class MainActivity extends AppCompatActivity {
      * Класс соединения Bluetooth в отдельном потоке
      */
     public class BTConnectThread extends AsyncTask<Void, Void, Integer> {
+
+
         Integer result;
 
         public void seveAdress(String adressBluetooth) {
@@ -562,7 +614,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             button_make_foto.setEnabled(false);
-             showProgress();
+            //showProgress();
 
         }
 
@@ -699,14 +751,7 @@ public class MainActivity extends AppCompatActivity {
             getSettings();
             // Устанавливаем цвет кнопки
             //    button_make_foto.setBackgroundColor(getResources().getColor(R.color.green));
-            if (btConnectThread == null) {
-                btConnectThread = new BTConnectThread();
-                btConnectThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-            } else if (btConnectThread.getStatus() == AsyncTask.Status.FINISHED) {
-                Log.d(sTAG, "btConnectThread.getStatus() == AsyncTask.Status.FINISHED");
-                btConnectThread = new BTConnectThread();
-                btConnectThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-            }
+            btConnect();
 
             error = false;
         } else {
@@ -766,7 +811,6 @@ public class MainActivity extends AppCompatActivity {
         protected Integer doInBackground(Void... voids) {
 
             countSettings = 0;
-            byte number_cam;
             int status = 0;
             for (int i = 0; i < 7; i++) {
                 write(returnSettings);
@@ -777,9 +821,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 try {
                     if (sInputStream.available() > 0) {
-                        number_cam = (byte) sInputStream.read();                   // 1. Номер камеры
+                        quantity_cam = sInputStream.read();                   // 1. Количество камер
+                        Log.e(sTAG, "Количество камер " + quantity_cam);
+                        number_cam = sInputStream.read();                   // 1. Номер камеры
                         Log.e(sTAG, "Номер камеры " + number_cam);
-                        commandSettings = (byte) sInputStream.read();                      // 2. Номер команды (команда 11)
+                        commandSettings = (byte) sInputStream.read();                      // 3. Номер команды (команда 11)
                         Log.e(sTAG, "Номер команды " + commandSettings);
                         if (commandSettings == numberCommandSettings) {
                             energy_camera = sInputStream.read();
@@ -799,11 +845,11 @@ public class MainActivity extends AppCompatActivity {
                             long k = sInputStream.skip(100000);
                             Log.e(sTAG, "Пропущено  " + k);
                             resetInputStream(sInputStream);
-                            continue;
+                            // continue;
                         }
                     } else {
 
-                        continue;
+                        //  continue;
 //                        try {
 //                            TimeUnit.SECONDS.sleep(1);
 //                        } catch (InterruptedException e) {
@@ -825,12 +871,14 @@ public class MainActivity extends AppCompatActivity {
                 button_make_foto.setEnabled(true);
                 button_make_foto.setClickable(true);
                 //   button_make_foto.setBackgroundColor(getResources().getColor(R.color.backgroundButton));
+
+                setNumberCamera(quantity_cam, number_cam);
                 setMethod();
 
             } else {
                 setPowerNull();
             }
-            hideProgress();
+            //  hideProgress();
         }
     }
 
@@ -1222,15 +1270,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void showProgress() {
-        progressDialog = ProgressDialog.show(this, "", getString(R.string.please_wait));
-    }
-
-    public void hideProgress() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
-    }
+//    public void showProgress() {
+//        progressDialog = ProgressDialog.show(this, "", getString(R.string.please_wait));
+//    }
+//
+//    public void hideProgress() {
+//        if (progressDialog != null) {
+//            progressDialog.dismiss();
+//        }
+//    }
 
 }
 

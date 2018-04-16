@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_weight="1"
     tools:context="com.example.artem.menupreferense.MainActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -27,7 +29,7 @@
             android:layout_gravity="center_vertical|center_horizontal|center"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay">
-    <!---    <LinearLayout
+            <!---    <LinearLayout
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:layout_gravity="left|center">
@@ -56,51 +58,64 @@
                         android:layout_weight="1" />
                 </LinearLayout> -->
 
-           <LinearLayout
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_gravity="right|center">
-
-               <Button
-                   android:id="@+id/mode_cam"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_weight="1"
-                   android:background="@color/colorPrimary"
-                   android:clickable="false"
-                   android:drawableLeft="@drawable/ic_burst_mode_black_24dp"
-                   android:drawablePadding="5dp"
-                   android:padding="10dp"
-                   android:text="Button" />
-
-               <Button
-                   android:id="@+id/battery_cam"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_weight="1"
-                   android:background="@color/colorPrimary"
-                   android:clickable="false"
-                   android:drawableLeft="@drawable/ic_linked_camera_black_24dp"
-                   android:drawablePadding="5dp"
-                   android:padding="10dp"
-                   android:text="Button" />
-
-               <Button
-                   android:id="@+id/battery_transmitter"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_weight="1"
-                   android:background="@color/colorPrimary"
-                   android:clickable="false"
-                   android:drawableLeft="@drawable/ic_wifi_tethering_black_24dp"
-                   android:drawablePadding="5dp"
-                   android:padding="10dp"
-                   android:text="Button" />
-
-           </LinearLayout>
 
 
-       </android.support.v7.widget.Toolbar>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center">
+
+
+
+                <android.support.design.widget.TabLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tabLayout">
+
+                </android.support.design.widget.TabLayout>
+
+
+                <Button
+                    android:id="@+id/mode_cam"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/colorPrimary"
+                    android:clickable="false"
+                    android:drawableLeft="@drawable/ic_burst_mode_black_24dp"
+                    android:drawablePadding="5dp"
+                    android:padding="10dp"
+                    android:text="Button" />
+
+                <Button
+                    android:id="@+id/battery_cam"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/colorPrimary"
+                    android:clickable="false"
+                    android:drawableLeft="@drawable/ic_linked_camera_black_24dp"
+                    android:drawablePadding="5dp"
+                    android:padding="10dp"
+                    android:text="Button" />
+
+                <Button
+                    android:id="@+id/battery_transmitter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/colorPrimary"
+                    android:clickable="false"
+                    android:drawableLeft="@drawable/ic_wifi_tethering_black_24dp"
+                    android:drawablePadding="5dp"
+                    android:padding="10dp"
+                    android:text="Button" />
+
+            </LinearLayout>
+
+
+        </android.support.v7.widget.Toolbar>
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -113,6 +128,142 @@
 
     </android.support.design.widget.AppBarLayout>
 
-         <include layout="@layout/content_main" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/appBar"
+        android:layout_gravity="top"
+        android:orientation="vertical">
 
-    </android.support.design.widget.CoordinatorLayout>
+        <RelativeLayout
+            android:id="@+id/RelativeLayoutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="4dp">
+
+            <LinearLayout
+                android:id="@+id/linerLayoutButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/darker_gray"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/buttonMakephoto"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/button_round"
+                    android:drawable="@drawable/button_foto_selector"
+                    android:drawableTop="@drawable/button_foto_selector"
+                    android:padding="11dp" />
+
+                <Button
+                    android:id="@+id/buttonSavePhoto"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="bottom|center"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/button_round"
+                    android:drawableBottom="@drawable/button_save_selector"
+                    android:gravity="center_vertical|center_horizontal|center"
+                    android:padding="11dp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@+id/linerLayoutButton"
+                android:orientation="vertical">
+
+               <!--<android.support.design.widget.TabLayout-->
+                   <!--android:layout_width="match_parent"-->
+                   <!--android:layout_height="wrap_content"-->
+                   <!--android:id="@+id/tabLayout">-->
+
+               <!--</android.support.design.widget.TabLayout>-->
+
+                <!--<TabHost-->
+                    <!--android:id="@+id/tabhost"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_weight="1">-->
+
+                    <!--<LinearLayout-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:orientation="vertical">-->
+
+                        <!--<TabWidget-->
+                            <!--android:id="@android:id/tabs"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="20dp"-->
+                            <!--android:showDividers="beginning"-->
+                            <!--android:background="@android:color/darker_gray" />-->
+
+                        <!--<FrameLayout-->
+                            <!--android:id="@android:id/tabcontent"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="match_parent">-->
+
+                            <LinearLayout
+                                android:id="@+id/tab1"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical">
+
+                                <include
+                                    layout="@layout/content_main"
+                                    android:layout_width="match_parent" />
+                            </LinearLayout>
+
+                            <!--<LinearLayout-->
+                                <!--android:id="@+id/tab2"-->
+                                <!--android:layout_width="match_parent"-->
+                                <!--android:layout_height="match_parent"-->
+                                <!--android:orientation="vertical">-->
+
+                            <!--</LinearLayout>-->
+
+                            <!--<LinearLayout-->
+                                <!--android:id="@+id/tab3"-->
+                                <!--android:layout_width="match_parent"-->
+                                <!--android:layout_height="match_parent"-->
+                                <!--android:orientation="vertical">-->
+
+                            <!--</LinearLayout>-->
+
+                            <!--<LinearLayout-->
+                                <!--android:id="@+id/tab4"-->
+                                <!--android:layout_width="match_parent"-->
+                                <!--android:layout_height="match_parent"-->
+                                <!--android:orientation="vertical">-->
+
+                            <!--</LinearLayout>-->
+                            <!--<LinearLayout-->
+                                <!--android:id="@+id/tab5"-->
+                                <!--android:layout_width="match_parent"-->
+                                <!--android:layout_height="match_parent"-->
+                                <!--android:orientation="vertical">-->
+
+                            <!--</LinearLayout>-->
+                        <!--</FrameLayout>-->
+                    <!--</LinearLayout>-->
+                <!--</TabHost>-->
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+
+
+
+
+    </LinearLayout>
+
+</RelativeLayout>
